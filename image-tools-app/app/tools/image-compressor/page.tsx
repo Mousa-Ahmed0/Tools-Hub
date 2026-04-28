@@ -311,6 +311,9 @@ export default function ImageCompressorPage() {
                     className="inline-flex rounded-xl border border-gray-300 px-5 py-3 text-sm font-medium text-gray-900 transition hover:bg-gray-50"
                   >
                     Download Compressed Image
+/*
+test for branch
+*/
                   </a>
                 </div>
               )}
