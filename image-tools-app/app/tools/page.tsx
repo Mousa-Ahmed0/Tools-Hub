@@ -3,7 +3,7 @@ import Link from "next/link";
 const tools = [
   { name: "Image Resizer", href: "/tools/image-resizer" },
   { name: "Image Compressor", href: "#" },
-  { name: "Image Converter", href: "#" },
+  { name: "Image Converter", href: "/tools/image-converter" },
   { name: "Crop Image", href: "#" },
   { name: "Rotate Image", href: "#" },
   { name: "Flip Image", href: "#" },
