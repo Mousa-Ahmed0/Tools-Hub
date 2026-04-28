@@ -5,7 +5,7 @@ const tools = [
   { name: "Image Compressor", href: "/tools/image-compressor", available: true },
   { name: "Image Converter", href: "/tools/image-converter", available: true },
   { name: "Crop Image", href: "/tools/crop-image", available: true },
-  { name: "Rotate Image", href: "#", available: false },
+  { name: "Rotate Image", href: "/tools/rotate-image", available: true },
   { name: "Flip Image", href: "#", available: false },
   { name: "Image to PDF", href: "#", available: false },
   { name: "PDF to Image", href: "#", available: false },

@@ -44,6 +44,17 @@ export default function CropImagePage() {
     setDownloadFileName(`${originalName}-cropped.png`);
   }
 
+  function handleReset() {
+    if (!originalWidth || !originalHeight) return;
+
+    setX("0");
+    setY("0");
+    setCropWidth(String(Math.min(200, originalWidth)));
+    setCropHeight(String(Math.min(200, originalHeight)));
+    setCroppedImage("");
+    setError("");
+  }
+
   async function handleCrop() {
     if (!file) {
       setError("Please upload an image first.");
@@ -184,7 +195,15 @@ export default function CropImagePage() {
               </div>
             </div>
 
-            <div className="mt-6">
+            <div className="mt-6 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={handleReset}
+                className="inline-flex rounded-xl border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-900 transition hover:bg-gray-50"
+              >
+                Reset
+              </button>
+
               <button
                 onClick={handleCrop}
                 className="inline-flex rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90"
