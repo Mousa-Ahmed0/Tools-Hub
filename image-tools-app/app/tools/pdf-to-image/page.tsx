@@ -39,7 +39,9 @@ export default function PdfToImagePage() {
       setPageNumber("1");
 
       const originalName = selectedFile.name.replace(/\.[^/.]+$/, "");
-      setImageDownloadFileName(`${originalName}-page-1.${format === "png" ? "png" : "jpg"}`);
+      setImageDownloadFileName(
+        `${originalName}-page-1.${format === "png" ? "png" : "jpg"}`
+      );
       setZipDownloadFileName(`${originalName}-pages-${format}.zip`);
     } catch {
       setError("Could not read the PDF file.");
@@ -87,7 +89,9 @@ export default function PdfToImagePage() {
       const originalName = file.name.replace(/\.[^/.]+$/, "");
       const extension = format === "png" ? "png" : "jpg";
 
-      setImageDownloadFileName(`${originalName}-page-${parsedPage}.${extension}`);
+      setImageDownloadFileName(
+        `${originalName}-page-${parsedPage}.${extension}`
+      );
       setImageUrl(result);
     } catch {
       setError("Something went wrong while converting the PDF page.");

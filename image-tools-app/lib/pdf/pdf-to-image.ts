@@ -1,16 +1,7 @@
-import JSZip from "jszip";
-import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
-
-GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
-
 export type PdfImageFormat = "png" | "jpeg";
 
 function getMimeType(format: PdfImageFormat): string {
   return format === "png" ? "image/png" : "image/jpeg";
-}
-
-function getExtension(format: PdfImageFormat): string {
-  return format === "png" ? "png" : "jpg";
 }
 
 function dataUrlToBlob(dataUrl: string): Blob {
@@ -33,9 +24,16 @@ function dataUrlToBlob(dataUrl: string): Blob {
   return new Blob([bytes], { type: mime });
 }
 
+async function getPdfJs() {
+  const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
+  return pdfjs;
+}
+
 async function loadPdf(file: File) {
+  const pdfjs = await getPdfJs();
   const arrayBuffer = await file.arrayBuffer();
-  return getDocument({ data: arrayBuffer }).promise;
+  return pdfjs.getDocument({ data: arrayBuffer }).promise;
 }
 
 async function renderPdfPageToCanvas(
@@ -63,7 +61,7 @@ async function renderPdfPageToCanvas(
   canvas.height = viewport.height;
 
   await page.render({
-    canvasContext: context as CanvasRenderingContext2D,
+    canvasContext: context,
     viewport,
   }).promise;
 
@@ -93,9 +91,10 @@ export async function pdfAllPagesToZip(
   file: File,
   format: PdfImageFormat = "png"
 ): Promise<Blob> {
+  const JSZip = (await import("jszip")).default;
   const pdf = await loadPdf(file);
   const zip = new JSZip();
-  const extension = getExtension(format);
+  const extension = format === "png" ? "png" : "jpg";
 
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
     const canvas = await renderPdfPageToCanvas(file, pageNumber, 2);

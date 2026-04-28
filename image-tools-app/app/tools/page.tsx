@@ -9,7 +9,7 @@ const tools = [
   { name: "Flip Image", href: "/tools/flip-image", available: true },
   { name: "Image to PDF", href: "/tools/image-to-pdf", available: true },
   { name: "PDF to Image", href: "/tools/pdf-to-image", available: true },
-  { name: "Resize for Instagram", href: "#", available: false },
+  { name: "Resize for Instagram", href: "/tools/resize-for-instagram", available: true },
   { name: "QR Code Generator", href: "#", available: false },
   { name: "Color Picker", href: "#", available: false },
   { name: "Passport Photo Maker", href: "#", available: false },
