@@ -1,55 +1,66 @@
 import Link from "next/link";
 
 const tools = [
-  { name: "Image Resizer", href: "/tools/image-resizer" },
-  { name: "Image Compressor", href: "/tools/image-compressor" },
-  { name: "Image Converter", href: "/tools/image-converter" },
-  { name: "Crop Image", href: "#" },
-  { name: "Rotate Image", href: "#" },
-  { name: "Flip Image", href: "#" },
-  { name: "Image to PDF", href: "#" },
-  { name: "PDF to Image", href: "#" },
-  { name: "Resize for Instagram", href: "#" },
-  { name: "QR Code Generator", href: "#" },
-  { name: "Color Picker", href: "#" },
-  { name: "Passport Photo Maker", href: "#" },
+  { name: "Image Resizer", href: "/tools/image-resizer", available: true },
+  { name: "Image Compressor", href: "/tools/image-compressor", available: true },
+  { name: "Image Converter", href: "/tools/image-converter", available: true },
+  { name: "Crop Image", href: "#", available: false },
+  { name: "Rotate Image", href: "#", available: false },
+  { name: "Flip Image", href: "#", available: false },
+  { name: "Image to PDF", href: "#", available: false },
+  { name: "PDF to Image", href: "#", available: false },
+  { name: "Resize for Instagram", href: "#", available: false },
+  { name: "QR Code Generator", href: "#", available: false },
+  { name: "Color Picker", href: "#", available: false },
+  { name: "Passport Photo Maker", href: "#", available: false },
 ];
 
 export default function ToolsPage() {
   return (
-    <section className="mx-auto max-w-6xl px-6 py-16">
-      <h1 className="text-4xl font-bold tracking-tight text-gray-900">Tools</h1>
+    <section className="py-14">
+      <div className="mx-auto max-w-6xl px-6">
+        <div className="max-w-2xl">
+          <h1 className="text-4xl font-bold tracking-tight text-gray-900">
+            Tools
+          </h1>
+          <p className="mt-3 text-lg text-gray-600">
+            MVP tools planned for the first release.
+          </p>
+        </div>
 
-      <p className="mt-3 text-lg text-gray-600">
-        MVP tools planned for the first release.
-      </p>
+        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {tools.map((tool) => (
+            <div
+              key={tool.name}
+              className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
+            >
+              <h2 className="text-xl font-semibold text-gray-900">
+                {tool.name}
+              </h2>
 
-      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {tools.map((tool) => (
-          <div
-            key={tool.name}
-            className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
-          >
-            <h2 className="text-xl font-semibold text-gray-900">{tool.name}</h2>
+              <p className="mt-3 text-sm leading-6 text-gray-600">
+                {tool.available
+                  ? "This tool is available in the current MVP."
+                  : "Coming soon in the MVP release."}
+              </p>
 
-            <p className="mt-2 text-sm text-gray-600">
-              Coming soon in the MVP release.
-            </p>
-
-            <div className="mt-4">
-              {tool.href === "#" ? (
-                <span className="text-sm text-gray-400">Not available yet</span>
-              ) : (
-                <Link
-                  href={tool.href}
-                  className="inline-flex items-center rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-900 transition hover:bg-gray-50"
-                >
-                  Open Tool
-                </Link>
-              )}
+              <div className="mt-5">
+                {tool.available ? (
+                  <Link
+                    href={tool.href}
+                    className="inline-flex rounded-xl border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-900 transition hover:bg-gray-50"
+                  >
+                    Open Tool
+                  </Link>
+                ) : (
+                  <span className="inline-flex rounded-xl bg-gray-100 px-4 py-2.5 text-sm font-medium text-gray-500">
+                    Not available yet
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );
