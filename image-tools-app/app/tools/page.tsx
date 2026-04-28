@@ -7,7 +7,7 @@ const tools = [
   { name: "Crop Image", href: "/tools/crop-image", available: true },
   { name: "Rotate Image", href: "/tools/rotate-image", available: true },
   { name: "Flip Image", href: "/tools/flip-image", available: true },
-  { name: "Image to PDF", href: "#", available: false },
+  { name: "Image to PDF", href: "/tools/image-to-pdf", available: true },
   { name: "PDF to Image", href: "#", available: false },
   { name: "Resize for Instagram", href: "#", available: false },
   { name: "QR Code Generator", href: "#", available: false },
