@@ -61,6 +61,7 @@ async function renderPdfPageToCanvas(
   canvas.height = viewport.height;
 
   await page.render({
+    canvas,
     canvasContext: context,
     viewport,
   }).promise;
