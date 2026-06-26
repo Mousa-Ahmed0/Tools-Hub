@@ -10,9 +10,12 @@ const tools = [
   { name: "Image to PDF", href: "/tools/image-to-pdf", available: true },
   { name: "PDF to Image", href: "/tools/pdf-to-image", available: true },
   { name: "Resize for Instagram", href: "/tools/resize-for-instagram", available: true },
-  { name: "QR Code Generator", href: "#", available: false },
-  { name: "Color Picker", href: "#", available: false },
-  { name: "Passport Photo Maker", href: "#", available: false },
+  { name: "Image Watermark", href: "/tools/image-watermark", available: true },
+  { name: "Background Color Remover", href: "/tools/background-color-remover", available: true },
+  { name: "Color Palette Extractor", href: "/tools/color-palette", available: true },
+  { name: "QR Code Generator", href: "/tools/qr-code-generator", available: true },
+  { name: "Color Picker", href: "/tools/color-picker", available: true },
+  { name: "Passport Photo Maker", href: "/tools/passport-photo-maker", available: true },
 ];
 
 export default function ToolsPage() {
