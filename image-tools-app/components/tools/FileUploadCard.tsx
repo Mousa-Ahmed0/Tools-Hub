@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, DragEvent, useEffect, useRef, useState } from "react";
 
 type FileUploadCardProps = {
   label?: string;
@@ -35,7 +35,10 @@ export default function FileUploadCard({
   const selectedFiles = files ?? (file ? [file] : []);
   const selectedCount = selectedFiles.length;
   const primaryFile = selectedFiles[0];
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const [thumbnailUrl, setThumbnailUrl] = useState("");
+  const [dimensions, setDimensions] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     if (!primaryFile?.type.startsWith("image/")) {
@@ -45,17 +48,60 @@ export default function FileUploadCard({
 
     const objectUrl = URL.createObjectURL(primaryFile);
     setThumbnailUrl(objectUrl);
+    setDimensions("");
+
+    const image = new Image();
+    image.onload = () => setDimensions(`${image.width} x ${image.height}px`);
+    image.src = objectUrl;
 
     return () => URL.revokeObjectURL(objectUrl);
   }, [primaryFile]);
+
+  function applyDroppedFiles(droppedFiles: File[]) {
+    if (!inputRef.current || !droppedFiles.length) return;
+
+    const dataTransfer = new DataTransfer();
+    const nextFiles = multiple ? droppedFiles : droppedFiles.slice(0, 1);
+
+    nextFiles.forEach((nextFile) => dataTransfer.items.add(nextFile));
+    inputRef.current.files = dataTransfer.files;
+    inputRef.current.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+
+  function handleDrop(event: DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    setIsDragging(false);
+    applyDroppedFiles(Array.from(event.dataTransfer.files));
+  }
 
   return (
     <div>
       <label className="mb-3 block text-sm font-bold text-slate-900">
         {label}
       </label>
-      <div className="rounded-3xl bg-[#EEF2FF] p-4 shadow-[inset_5px_5px_10px_#d1d9e6,inset_-5px_-5px_10px_#ffffff]">
+      <div
+        onDragOver={(event) => {
+          event.preventDefault();
+          setIsDragging(true);
+        }}
+        onDragLeave={() => setIsDragging(false)}
+        onDrop={handleDrop}
+        className={`rounded-3xl bg-[#EEF2FF] p-4 transition ${
+          isDragging
+            ? "scale-[1.01] shadow-[inset_7px_7px_14px_#c5cede,inset_-7px_-7px_14px_#ffffff]"
+            : "shadow-[inset_5px_5px_10px_#d1d9e6,inset_-5px_-5px_10px_#ffffff]"
+        }`}
+      >
+        <div className="mb-3 rounded-2xl border border-dashed border-indigo-200 bg-white/50 px-4 py-5 text-center">
+          <p className="text-sm font-bold text-slate-800">
+            Drop files here or choose from your device
+          </p>
+          <p className="mt-1 text-xs font-semibold text-slate-500">
+            Upload starts as soon as a file is selected.
+          </p>
+        </div>
         <input
+          ref={inputRef}
           key={inputKey}
           type="file"
           accept={accept}
@@ -87,6 +133,7 @@ export default function FileUploadCard({
               <div className="mt-2 grid gap-1 text-xs font-bold text-emerald-600 sm:grid-cols-2">
                 <span>Size: {formatFileSize(primaryFile.size)}</span>
                 <span>Type: {formatFileType(primaryFile)}</span>
+                {dimensions && <span className="sm:col-span-2">Dimensions: {dimensions}</span>}
               </div>
             )}
           </div>

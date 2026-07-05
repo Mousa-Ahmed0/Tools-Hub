@@ -1,12 +1,14 @@
 "use client";
 
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import FileUploadBox from "@/components/tools/FileUploadBox";
 import PreviewPanel from "@/components/tools/PreviewPanel";
 import ResultPanel from "@/components/tools/ResultPanel";
 import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
 import ToolPageShell from "@/components/tools/ToolPageShell";
 import { flipImage } from "@/lib/image/flip";
+import { rotateImage } from "@/lib/image/rotate";
+import { revokeObjectUrl } from "@/lib/object-url";
 
 type FlipDirection = "horizontal" | "vertical";
 
@@ -15,9 +17,16 @@ export default function FlipImagePage() {
   const [preview, setPreview] = useState<string>("");
   const [flippedImage, setFlippedImage] = useState<string>("");
   const [direction, setDirection] = useState<FlipDirection>("horizontal");
+  const [flippedHorizontal, setFlippedHorizontal] = useState(false);
+  const [flippedVertical, setFlippedVertical] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [downloadFileName, setDownloadFileName] = useState("flipped-image.png");
+  const [inputKey, setInputKey] = useState(0);
+
+  useEffect(() => {
+    return () => revokeObjectUrl(preview);
+  }, [preview]);
 
   function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
     const selectedFile = event.target.files?.[0];
@@ -28,15 +37,29 @@ export default function FlipImagePage() {
     setFlippedImage("");
     setError("");
     setDirection("horizontal");
+    setFlippedHorizontal(false);
+    setFlippedVertical(false);
 
     const originalName = selectedFile.name.replace(/\.[^/.]+$/, "");
     setDownloadFileName(`${originalName}-flipped.png`);
   }
 
   function handleReset() {
+    setFile(null);
+    setPreview("");
     setDirection("horizontal");
+    setFlippedHorizontal(false);
+    setFlippedVertical(false);
     setFlippedImage("");
+    setLoading(false);
     setError("");
+    setDownloadFileName("flipped-image.png");
+    setInputKey((current) => current + 1);
+  }
+
+  function handleDirectionChange(nextDirection: FlipDirection) {
+    setDirection(nextDirection);
+    setFlippedImage("");
   }
 
   async function handleFlip() {
@@ -48,9 +71,35 @@ export default function FlipImagePage() {
     try {
       setLoading(true);
       setError("");
-      const result = await flipImage(file, direction);
+
+      const nextHorizontal =
+        direction === "horizontal" ? !flippedHorizontal : flippedHorizontal;
+      const nextVertical =
+        direction === "vertical" ? !flippedVertical : flippedVertical;
+      let result: string;
+
+      if (nextHorizontal && nextVertical) {
+        result = await rotateImage(file, 180);
+      } else if (nextHorizontal) {
+        result = await flipImage(file, "horizontal");
+      } else if (nextVertical) {
+        result = await flipImage(file, "vertical");
+      } else {
+        result = preview;
+      }
+
       const originalName = file.name.replace(/\.[^/.]+$/, "");
-      setDownloadFileName(`${originalName}-flipped-${direction}.png`);
+      const stateLabel =
+        nextHorizontal && nextVertical
+          ? "horizontal-vertical"
+          : nextHorizontal
+          ? "horizontal"
+          : nextVertical
+          ? "vertical"
+          : "original";
+      setFlippedHorizontal(nextHorizontal);
+      setFlippedVertical(nextVertical);
+      setDownloadFileName(`${originalName}-flipped-${stateLabel}.png`);
       setFlippedImage(result);
     } catch {
       setError("Something went wrong while flipping the image.");
@@ -65,7 +114,7 @@ export default function FlipImagePage() {
       description="Upload an image, choose a flip direction, and download the result."
       controls={
         <ToolControlsPanel error={error}>
-          <FileUploadBox label="Upload Image" accept="image/*" file={file} onChange={handleFileChange} />
+          <FileUploadBox inputKey={inputKey} label="Upload Image" accept="image/*" file={file} onChange={handleFileChange} />
 
           <div>
             <label className="mb-3 block text-sm font-bold text-slate-900">
@@ -76,7 +125,7 @@ export default function FlipImagePage() {
                 <button
                   key={option}
                   type="button"
-                  onClick={() => setDirection(option)}
+                  onClick={() => handleDirectionChange(option)}
                   className={`rounded-2xl px-4 py-2.5 text-sm font-bold capitalize transition ${
                     direction === option
                       ? "bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff]"
@@ -93,10 +142,10 @@ export default function FlipImagePage() {
             <button type="button" onClick={handleReset} className="rounded-2xl bg-[#EEF2FF] px-5 py-3 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600">
               Reset
             </button>
-            <button type="button" onClick={handleFlip} disabled={loading} className="rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">
-              {loading ? "Flipping..." : "Flip Image"}
-            </button>
           </div>
+          <button type="button" onClick={handleFlip} disabled={loading} className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">
+            {loading ? "Flipping..." : "Flip Image"}
+          </button>
         </ToolControlsPanel>
       }
     >

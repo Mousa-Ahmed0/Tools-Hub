@@ -1,22 +1,25 @@
 "use client";
 
-import { ChangeEvent, useMemo, useState } from "react";
+import { ChangeEvent, MouseEvent, useEffect, useMemo, useRef, useState } from "react";
 import FileUploadBox from "@/components/tools/FileUploadBox";
 import PreviewPanel from "@/components/tools/PreviewPanel";
 import ResultPanel from "@/components/tools/ResultPanel";
 import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
 import ToolPageShell from "@/components/tools/ToolPageShell";
 import { removeBackgroundColor } from "@/lib/image/background-color-remover";
+import { revokeObjectUrl } from "@/lib/object-url";
 
 function getBaseName(fileName: string) {
   return fileName.replace(/\.[^/.]+$/, "");
 }
 
 export default function BackgroundColorRemoverPage() {
+  const imageRef = useRef<HTMLImageElement | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState("");
   const [processedImage, setProcessedImage] = useState("");
   const [backgroundColor, setBackgroundColor] = useState("#ffffff");
+  const [eyedropperEnabled, setEyedropperEnabled] = useState(false);
   const [tolerance, setTolerance] = useState("20");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -24,6 +27,10 @@ export default function BackgroundColorRemoverPage() {
   const [inputKey, setInputKey] = useState(0);
 
   const toleranceValue = useMemo(() => Number(tolerance), [tolerance]);
+
+  useEffect(() => {
+    return () => revokeObjectUrl(preview);
+  }, [preview]);
 
   function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
     const selectedFile = event.target.files?.[0];
@@ -33,6 +40,7 @@ export default function BackgroundColorRemoverPage() {
     setPreview(URL.createObjectURL(selectedFile));
     setProcessedImage("");
     setError("");
+    setEyedropperEnabled(false);
     setDownloadFileName(`${getBaseName(selectedFile.name)}-bg-removed.png`);
   }
 
@@ -41,6 +49,7 @@ export default function BackgroundColorRemoverPage() {
     setPreview("");
     setProcessedImage("");
     setBackgroundColor("#ffffff");
+    setEyedropperEnabled(false);
     setTolerance("20");
     setError("");
     setDownloadFileName("background-color-removed.png");
@@ -69,6 +78,49 @@ export default function BackgroundColorRemoverPage() {
       setError("Something went wrong while removing the selected color.");
     } finally {
       setLoading(false);
+    }
+  }
+
+  function rgbToHex(red: number, green: number, blue: number) {
+    return `#${[red, green, blue]
+      .map((value) => value.toString(16).padStart(2, "0"))
+      .join("")}`;
+  }
+
+  function handleImagePick(event: MouseEvent<HTMLImageElement>) {
+    if (!eyedropperEnabled || !imageRef.current) return;
+
+    try {
+      const image = imageRef.current;
+      const rect = image.getBoundingClientRect();
+      const scaleX = image.naturalWidth / rect.width;
+      const scaleY = image.naturalHeight / rect.height;
+      const pixelX = Math.min(
+        image.naturalWidth - 1,
+        Math.max(0, Math.floor((event.clientX - rect.left) * scaleX))
+      );
+      const pixelY = Math.min(
+        image.naturalHeight - 1,
+        Math.max(0, Math.floor((event.clientY - rect.top) * scaleY))
+      );
+      const canvas = document.createElement("canvas");
+      canvas.width = image.naturalWidth;
+      canvas.height = image.naturalHeight;
+      const context = canvas.getContext("2d");
+
+      if (!context) {
+        setError("Could not read color from this image.");
+        return;
+      }
+
+      context.drawImage(image, 0, 0);
+      const pixel = context.getImageData(pixelX, pixelY, 1, 1).data;
+      setBackgroundColor(rgbToHex(pixel[0], pixel[1], pixel[2]));
+      setProcessedImage("");
+      setEyedropperEnabled(false);
+      setError("");
+    } catch {
+      setError("Could not pick a color from this image.");
     }
   }
 
@@ -120,19 +172,41 @@ export default function BackgroundColorRemoverPage() {
             </label>
           </div>
 
+          <button
+            type="button"
+            onClick={() => setEyedropperEnabled((current) => !current)}
+            className={`rounded-2xl px-5 py-3 text-sm font-bold shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition ${
+              eyedropperEnabled
+                ? "bg-gradient-to-r from-indigo-500 to-violet-500 text-white"
+                : "bg-[#EEF2FF] text-slate-700 hover:text-indigo-600"
+            }`}
+          >
+            {eyedropperEnabled ? "Click Image to Pick Color" : "Pick Color from Image"}
+          </button>
+
           <div className="flex flex-wrap gap-3">
             <button type="button" onClick={handleReset} className="inline-flex rounded-2xl bg-[#EEF2FF] px-5 py-3 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600">
               Reset
             </button>
-            <button type="button" onClick={handleRemoveColor} disabled={loading} className="inline-flex rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">
-              {loading ? "Removing Color..." : "Remove Color"}
-            </button>
           </div>
+          <button type="button" onClick={handleRemoveColor} disabled={loading} className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">
+            {loading ? "Removing Color..." : "Remove Color"}
+          </button>
         </ToolControlsPanel>
       }
     >
       <PreviewPanel title="Original Preview">
-        {preview && <img src={preview} alt="Original preview" className="max-h-[520px] w-auto max-w-full rounded-2xl object-contain" />}
+        {preview && (
+          <img
+            ref={imageRef}
+            src={preview}
+            alt="Original preview"
+            onClick={handleImagePick}
+            className={`max-h-[520px] w-auto max-w-full rounded-2xl object-contain ${
+              eyedropperEnabled ? "cursor-crosshair ring-4 ring-indigo-300" : ""
+            }`}
+          />
+        )}
       </PreviewPanel>
 
       <ResultPanel

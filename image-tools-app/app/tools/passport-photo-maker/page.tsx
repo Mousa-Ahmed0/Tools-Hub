@@ -1,11 +1,12 @@
 "use client";
 
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import FileUploadBox from "@/components/tools/FileUploadBox";
 import PreviewPanel from "@/components/tools/PreviewPanel";
 import ResultPanel from "@/components/tools/ResultPanel";
 import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
 import ToolPageShell from "@/components/tools/ToolPageShell";
+import { revokeObjectUrl } from "@/lib/object-url";
 import {
   PassportPhotoPresetKey,
   createPassportPhoto,
@@ -30,6 +31,10 @@ export default function PassportPhotoMakerPage() {
   const selectedPreset =
     passportPhotoPresets.find((preset) => preset.key === selectedPresetKey) ??
     passportPhotoPresets[0];
+
+  useEffect(() => {
+    return () => revokeObjectUrl(preview);
+  }, [preview]);
 
   function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
     const selectedFile = event.target.files?.[0];
@@ -118,10 +123,10 @@ export default function PassportPhotoMakerPage() {
             <button type="button" onClick={handleReset} className="inline-flex rounded-2xl bg-[#EEF2FF] px-5 py-3 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600">
               Reset
             </button>
-            <button type="button" onClick={handleGenerate} disabled={loading} className="inline-flex rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">
-              {loading ? "Generating..." : "Generate Photo"}
-            </button>
           </div>
+          <button type="button" onClick={handleGenerate} disabled={loading} className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">
+            {loading ? "Generating..." : "Generate Photo"}
+          </button>
         </ToolControlsPanel>
       }
     >

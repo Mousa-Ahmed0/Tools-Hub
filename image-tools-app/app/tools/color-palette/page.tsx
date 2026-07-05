@@ -1,12 +1,13 @@
 "use client";
 
-import { ChangeEvent, useMemo, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import FileUploadBox from "@/components/tools/FileUploadBox";
 import PreviewPanel from "@/components/tools/PreviewPanel";
 import ResultPanel from "@/components/tools/ResultPanel";
 import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
 import ToolPageShell from "@/components/tools/ToolPageShell";
 import { PaletteColor, extractColorPalette } from "@/lib/image/color-palette";
+import { revokeObjectUrl } from "@/lib/object-url";
 
 function getBaseName(fileName: string) {
   return fileName.replace(/\.[^/.]+$/, "");
@@ -43,6 +44,14 @@ export default function ColorPalettePage() {
     const blob = new Blob([paletteJson], { type: "application/json" });
     return URL.createObjectURL(blob);
   }, [palette.length, paletteJson]);
+
+  useEffect(() => {
+    return () => revokeObjectUrl(preview);
+  }, [preview]);
+
+  useEffect(() => {
+    return () => revokeObjectUrl(paletteDownloadUrl);
+  }, [paletteDownloadUrl]);
 
   function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
     const selectedFile = event.target.files?.[0];
@@ -121,15 +130,15 @@ export default function ColorPalettePage() {
             >
               Reset
             </button>
-            <button
-              type="button"
-              onClick={handleExtractPalette}
-              disabled={loading}
-              className="inline-flex rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {loading ? "Extracting..." : "Extract Palette"}
-            </button>
           </div>
+          <button
+            type="button"
+            onClick={handleExtractPalette}
+            disabled={loading}
+            className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {loading ? "Extracting..." : "Extract Palette"}
+          </button>
         </ToolControlsPanel>
       }
     >

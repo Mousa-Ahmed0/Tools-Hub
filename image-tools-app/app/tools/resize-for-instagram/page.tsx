@@ -1,12 +1,13 @@
 "use client";
 
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import FileUploadBox from "@/components/tools/FileUploadBox";
 import PreviewPanel from "@/components/tools/PreviewPanel";
 import ResultPanel from "@/components/tools/ResultPanel";
 import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
 import ToolPageShell from "@/components/tools/ToolPageShell";
 import { resizeForCanvasFit } from "@/lib/image/resize-for-social";
+import { revokeObjectUrl } from "@/lib/object-url";
 
 type InstagramPreset = { key: string; label: string; width: number; height: number };
 
@@ -25,6 +26,11 @@ export default function ResizeForInstagramPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [downloadFileName, setDownloadFileName] = useState("instagram-image.png");
+  const [inputKey, setInputKey] = useState(0);
+
+  useEffect(() => {
+    return () => revokeObjectUrl(preview);
+  }, [preview]);
 
   const selectedPreset = presets.find((preset) => preset.key === selectedPresetKey) ?? presets[0];
 
@@ -39,10 +45,23 @@ export default function ResizeForInstagramPage() {
   }
 
   function handleReset() {
+    setFile(null);
+    setPreview("");
     setSelectedPresetKey("square");
     setResizedImage("");
+    setLoading(false);
     setError("");
-    if (file) setDownloadFileName(`${file.name.replace(/\.[^/.]+$/, "")}-square.png`);
+    setDownloadFileName("instagram-image.png");
+    setInputKey((current) => current + 1);
+  }
+
+  function handlePresetChange(key: string) {
+    setSelectedPresetKey(key);
+    setResizedImage("");
+    if (file) {
+      const preset = presets.find((item) => item.key === key) ?? presets[0];
+      setDownloadFileName(`${file.name.replace(/\.[^/.]+$/, "")}-${preset.key}.png`);
+    }
   }
 
   async function handleResize() {
@@ -69,12 +88,12 @@ export default function ResizeForInstagramPage() {
       description="Upload an image, choose an Instagram format, and download the resized result."
       controls={
         <ToolControlsPanel error={error}>
-          <FileUploadBox label="Upload Image" accept="image/*" file={file} onChange={handleFileChange} />
+          <FileUploadBox inputKey={inputKey} label="Upload Image" accept="image/*" file={file} onChange={handleFileChange} />
           <div>
             <label className="mb-3 block text-sm font-bold text-slate-900">Instagram Preset</label>
             <div className="grid gap-3 sm:grid-cols-2">
               {presets.map((preset) => (
-                <button key={preset.key} type="button" onClick={() => setSelectedPresetKey(preset.key)} className={`rounded-2xl px-4 py-3 text-left text-sm font-bold transition ${selectedPresetKey === preset.key ? "bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff]" : "bg-[#EEF2FF] text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] hover:text-indigo-600"}`}>
+                <button key={preset.key} type="button" onClick={() => handlePresetChange(preset.key)} className={`rounded-2xl px-4 py-3 text-left text-sm font-bold transition ${selectedPresetKey === preset.key ? "bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff]" : "bg-[#EEF2FF] text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] hover:text-indigo-600"}`}>
                   <div>{preset.label}</div>
                   <div className="mt-1 text-xs opacity-80">{preset.width} x {preset.height}</div>
                 </button>
@@ -83,8 +102,8 @@ export default function ResizeForInstagramPage() {
           </div>
           <div className="flex flex-wrap gap-3">
             <button type="button" onClick={handleReset} className="rounded-2xl bg-[#EEF2FF] px-5 py-3 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600">Reset</button>
-            <button type="button" onClick={handleResize} disabled={loading} className="rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">{loading ? "Resizing..." : "Resize for Instagram"}</button>
           </div>
+          <button type="button" onClick={handleResize} disabled={loading} className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">{loading ? "Resizing..." : "Resize for Instagram"}</button>
         </ToolControlsPanel>
       }
     >
