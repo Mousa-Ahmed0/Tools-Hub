@@ -1,6 +1,11 @@
 "use client";
 
 import { ChangeEvent, useState } from "react";
+import FileUploadBox from "@/components/tools/FileUploadBox";
+import PreviewPanel from "@/components/tools/PreviewPanel";
+import ResultPanel from "@/components/tools/ResultPanel";
+import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
+import ToolPageShell from "@/components/tools/ToolPageShell";
 import { ImageMetadata, getImageMetadata } from "@/lib/image/metadata";
 
 function formatFileSize(bytes: number) {
@@ -14,6 +19,7 @@ function formatDate(timestamp: number) {
 }
 
 export default function MetadataViewerPage() {
+  const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState("");
   const [metadata, setMetadata] = useState<ImageMetadata | null>(null);
   const [error, setError] = useState("");
@@ -25,9 +31,9 @@ export default function MetadataViewerPage() {
 
     try {
       setError("");
+      setFile(selectedFile);
       setMetadata(null);
       setPreview(URL.createObjectURL(selectedFile));
-
       const result = await getImageMetadata(selectedFile);
       setMetadata(result);
     } catch {
@@ -36,6 +42,7 @@ export default function MetadataViewerPage() {
   }
 
   function handleReset() {
+    setFile(null);
     setPreview("");
     setMetadata(null);
     setError("");
@@ -43,111 +50,37 @@ export default function MetadataViewerPage() {
   }
 
   return (
-    <section className="py-14">
-      <div className="mx-auto max-w-5xl px-6">
-        <div className="mx-auto max-w-4xl">
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900">
-            Image Metadata Viewer
-          </h1>
-          <p className="mt-3 text-lg text-gray-600">
-            Upload an image to view its file details, dimensions, and type.
-          </p>
-
-          <div className="mt-8 rounded-2xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
-            <label className="mb-3 block text-sm font-semibold text-gray-900">
-              Upload Image
-            </label>
-
-            <input
-              key={inputKey}
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="block w-full text-sm text-gray-700 file:mr-4 file:rounded-lg file:border-0 file:bg-black file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:opacity-90"
-            />
-
-            <div className="mt-6">
-              <button
-                type="button"
-                onClick={handleReset}
-                className="inline-flex rounded-xl border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-900 transition hover:bg-gray-50"
-              >
-                Reset
-              </button>
-            </div>
-
-            {error && (
-              <p className="mt-4 text-sm font-medium text-red-600">{error}</p>
-            )}
-          </div>
-
-          {(preview || metadata) && (
-            <div className="mt-8 grid gap-5 md:grid-cols-2">
-              {preview && (
-                <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                  <h2 className="mb-4 text-xl font-semibold text-gray-900">
-                    Image Preview
-                  </h2>
-                  <img
-                    src={preview}
-                    alt="Uploaded preview"
-                    className="w-full rounded-xl border border-gray-200"
-                  />
-                </div>
-              )}
-
-              <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                <h2 className="mb-4 text-xl font-semibold text-gray-900">
-                  Metadata
-                </h2>
-
-                {metadata ? (
-                  <dl className="space-y-3 rounded-xl bg-gray-50 p-4 text-sm">
-                    <div>
-                      <dt className="font-semibold text-gray-900">File name</dt>
-                      <dd className="mt-1 break-words text-gray-600">
-                        {metadata.fileName}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="font-semibold text-gray-900">File size</dt>
-                      <dd className="mt-1 text-gray-600">
-                        {formatFileSize(metadata.fileSize)}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="font-semibold text-gray-900">Dimensions</dt>
-                      <dd className="mt-1 text-gray-600">
-                        {metadata.width} x {metadata.height}px
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="font-semibold text-gray-900">Image type</dt>
-                      <dd className="mt-1 text-gray-600">
-                        {metadata.imageType}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="font-semibold text-gray-900">
-                        Last modified
-                      </dt>
-                      <dd className="mt-1 text-gray-600">
-                        {formatDate(metadata.lastModified)}
-                      </dd>
-                    </div>
-                  </dl>
-                ) : (
-                  <div className="flex min-h-[260px] items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50 p-4">
-                    <p className="text-sm text-gray-500">
-                      Image metadata will appear here.
-                    </p>
-                  </div>
-                )}
+    <ToolPageShell
+      title="Image Metadata Viewer"
+      description="Upload an image to view its file details, dimensions, and type."
+      controls={
+        <ToolControlsPanel error={error}>
+          <FileUploadBox inputKey={inputKey} label="Upload Image" accept="image/*" file={file} onChange={handleFileChange} />
+          <button type="button" onClick={handleReset} className="rounded-2xl bg-[#EEF2FF] px-5 py-3 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600">Reset</button>
+        </ToolControlsPanel>
+      }
+    >
+      <PreviewPanel title="Image Preview">
+        {preview && <img src={preview} alt="Uploaded preview" className="max-h-[520px] w-auto max-w-full rounded-2xl object-contain" />}
+      </PreviewPanel>
+      <ResultPanel title="Metadata">
+        {metadata && (
+          <dl className="w-full space-y-3 rounded-2xl bg-white/70 p-4 text-sm">
+            {[
+              ["File name", metadata.fileName],
+              ["File size", formatFileSize(metadata.fileSize)],
+              ["Dimensions", `${metadata.width} x ${metadata.height}px`],
+              ["Image type", metadata.imageType],
+              ["Last modified", formatDate(metadata.lastModified)],
+            ].map(([label, value]) => (
+              <div key={label}>
+                <dt className="font-bold text-slate-900">{label}</dt>
+                <dd className="mt-1 break-words text-slate-600">{value}</dd>
               </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
+            ))}
+          </dl>
+        )}
+      </ResultPanel>
+    </ToolPageShell>
   );
 }

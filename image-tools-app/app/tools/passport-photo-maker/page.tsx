@@ -1,6 +1,11 @@
 "use client";
 
 import { ChangeEvent, useState } from "react";
+import FileUploadBox from "@/components/tools/FileUploadBox";
+import PreviewPanel from "@/components/tools/PreviewPanel";
+import ResultPanel from "@/components/tools/ResultPanel";
+import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
+import ToolPageShell from "@/components/tools/ToolPageShell";
 import {
   PassportPhotoPresetKey,
   createPassportPhoto,
@@ -19,9 +24,7 @@ export default function PassportPhotoMakerPage() {
     useState<PassportPhotoPresetKey>("us-passport");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [downloadFileName, setDownloadFileName] = useState(
-    "passport-photo.png"
-  );
+  const [downloadFileName, setDownloadFileName] = useState("passport-photo.png");
   const [inputKey, setInputKey] = useState(0);
 
   const selectedPreset =
@@ -71,134 +74,70 @@ export default function PassportPhotoMakerPage() {
   }
 
   return (
-    <section className="py-14">
-      <div className="mx-auto max-w-5xl px-6">
-        <div className="mx-auto max-w-4xl">
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900">
-            Passport Photo Maker
-          </h1>
-          <p className="mt-3 text-lg text-gray-600">
-            Upload an image, choose a photo size, and create a white-background PNG.
-          </p>
+    <ToolPageShell
+      title="Passport Photo Maker"
+      description="Upload an image, choose a photo size, and create a white-background PNG."
+      controls={
+        <ToolControlsPanel error={error}>
+          <FileUploadBox
+            key={inputKey}
+            label="Upload Image"
+            accept="image/*"
+            file={file}
+            onChange={handleFileChange}
+          />
 
-          <div className="mt-8 rounded-2xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
-            <label className="mb-3 block text-sm font-semibold text-gray-900">
-              Upload Image
-            </label>
-
-            <input
-              key={inputKey}
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="block w-full text-sm text-gray-700 file:mr-4 file:rounded-lg file:border-0 file:bg-black file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:opacity-90"
-            />
-
-            <div className="mt-6">
-              <label className="mb-2 block text-sm font-semibold text-gray-900">
-                Photo Size
-              </label>
-
-              <div className="grid gap-3 sm:grid-cols-3">
-                {passportPhotoPresets.map((preset) => (
-                  <button
-                    key={preset.key}
-                    type="button"
-                    onClick={() => {
-                      setSelectedPresetKey(preset.key);
-                      setPassportPhoto("");
-                    }}
-                    className={`rounded-xl border px-4 py-3 text-left text-sm font-semibold transition ${
-                      selectedPresetKey === preset.key
-                        ? "border-black bg-black text-white"
-                        : "border-gray-300 bg-white text-gray-900 hover:bg-gray-50"
-                    }`}
-                  >
-                    <div>{preset.label}</div>
-                    <div className="mt-1 text-xs opacity-80">
-                      {preset.description}
-                    </div>
-                    <div className="mt-1 text-xs opacity-80">
-                      {preset.width} x {preset.height}px
-                    </div>
-                  </button>
-                ))}
-              </div>
+          <div>
+            <label className="mb-3 block text-sm font-bold text-slate-900">Photo Size</label>
+            <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
+              {passportPhotoPresets.map((preset) => (
+                <button
+                  key={preset.key}
+                  type="button"
+                  onClick={() => {
+                    setSelectedPresetKey(preset.key);
+                    setPassportPhoto("");
+                  }}
+                  className={`rounded-2xl px-4 py-3 text-left text-sm font-bold transition ${
+                    selectedPresetKey === preset.key
+                      ? "bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff]"
+                      : "bg-[#EEF2FF] text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] hover:text-indigo-600"
+                  }`}
+                >
+                  <span className="block">{preset.label}</span>
+                  <span className="mt-1 block text-xs opacity-80">{preset.description}</span>
+                  <span className="mt-1 block text-xs opacity-80">
+                    {preset.width} x {preset.height}px
+                  </span>
+                </button>
+              ))}
             </div>
-
-            <div className="mt-6 flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={handleReset}
-                className="inline-flex rounded-xl border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-900 transition hover:bg-gray-50"
-              >
-                Reset
-              </button>
-
-              <button
-                type="button"
-                onClick={handleGenerate}
-                className="inline-flex rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90"
-              >
-                {loading ? "Generating..." : "Generate Photo"}
-              </button>
-            </div>
-
-            {error && (
-              <p className="mt-4 text-sm font-medium text-red-600">{error}</p>
-            )}
           </div>
 
-          {(preview || passportPhoto) && (
-            <div className="mt-8 grid gap-5 md:grid-cols-2">
-              {preview && (
-                <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                  <h2 className="mb-4 text-xl font-semibold text-gray-900">
-                    Original Preview
-                  </h2>
-                  <img
-                    src={preview}
-                    alt="Original preview"
-                    className="w-full rounded-xl border border-gray-200"
-                  />
-                </div>
-              )}
+          <div className="flex flex-wrap gap-3">
+            <button type="button" onClick={handleReset} className="inline-flex rounded-2xl bg-[#EEF2FF] px-5 py-3 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600">
+              Reset
+            </button>
+            <button type="button" onClick={handleGenerate} disabled={loading} className="inline-flex rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">
+              {loading ? "Generating..." : "Generate Photo"}
+            </button>
+          </div>
+        </ToolControlsPanel>
+      }
+    >
+      <PreviewPanel title="Original Preview">
+        {preview && <img src={preview} alt="Original preview" className="max-h-[520px] w-auto max-w-full rounded-2xl object-contain" />}
+      </PreviewPanel>
 
-              <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                <h2 className="mb-4 text-xl font-semibold text-gray-900">
-                  Generated Photo
-                </h2>
-
-                {passportPhoto ? (
-                  <>
-                    <img
-                      src={passportPhoto}
-                      alt="Generated passport photo"
-                      className="w-full rounded-xl border border-gray-200"
-                    />
-
-                    <div className="mt-4">
-                      <a
-                        href={passportPhoto}
-                        download={downloadFileName}
-                        className="inline-flex rounded-xl border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-900 transition hover:bg-gray-50"
-                      >
-                        Download PNG
-                      </a>
-                    </div>
-                  </>
-                ) : (
-                  <div className="flex min-h-[260px] items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50 p-4">
-                    <p className="text-sm text-gray-500">
-                      Your generated passport photo will appear here.
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
+      <ResultPanel
+        title="Generated Photo"
+        downloadHref={passportPhoto}
+        downloadName={downloadFileName}
+        downloadLabel="Download PNG"
+        emptyText="Your generated passport photo will appear here."
+      >
+        {passportPhoto && <img src={passportPhoto} alt="Generated passport photo" className="max-h-[520px] w-auto max-w-full rounded-2xl object-contain" />}
+      </ResultPanel>
+    </ToolPageShell>
   );
 }

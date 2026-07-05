@@ -1,10 +1,12 @@
 "use client";
 
 import { ChangeEvent, useMemo, useState } from "react";
-import {
-  WatermarkPosition,
-  watermarkImage,
-} from "@/lib/image/watermark";
+import FileUploadBox from "@/components/tools/FileUploadBox";
+import PreviewPanel from "@/components/tools/PreviewPanel";
+import ResultPanel from "@/components/tools/ResultPanel";
+import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
+import ToolPageShell from "@/components/tools/ToolPageShell";
+import { WatermarkPosition, watermarkImage } from "@/lib/image/watermark";
 
 const positions: { label: string; value: WatermarkPosition }[] = [
   { label: "Top Left", value: "top-left" },
@@ -33,10 +35,7 @@ export default function ImageWatermarkPage() {
   const [downloadFileName, setDownloadFileName] = useState("watermarked-image.png");
   const [inputKey, setInputKey] = useState(0);
 
-  const opacityPercent = useMemo(
-    () => Math.round(Number(opacity) * 100),
-    [opacity]
-  );
+  const opacityPercent = useMemo(() => Math.round(Number(opacity) * 100), [opacity]);
 
   function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
     const selectedFile = event.target.files?.[0];
@@ -119,202 +118,137 @@ export default function ImageWatermarkPage() {
   }
 
   return (
-    <section className="py-14">
-      <div className="mx-auto max-w-5xl px-6">
-        <div className="mx-auto max-w-4xl">
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900">
-            Image Watermark
-          </h1>
-          <p className="mt-3 text-lg text-gray-600">
-            Upload an image, add a text or logo watermark, preview it, and download a PNG result.
-          </p>
+    <ToolPageShell
+      title="Image Watermark"
+      description="Upload an image, add a text or logo watermark, preview it, and download a PNG result."
+      controls={
+        <ToolControlsPanel error={error}>
+          <FileUploadBox
+            key={`image-${inputKey}`}
+            label="Upload Image"
+            accept="image/*"
+            file={file}
+            onChange={handleFileChange}
+          />
 
-          <div className="mt-8 rounded-2xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
-            <label className="mb-3 block text-sm font-semibold text-gray-900">
-              Upload Image
+          <label className="block">
+            <span className="mb-2 block text-sm font-bold text-slate-900">Watermark Text</span>
+            <input
+              type="text"
+              value={text}
+              onChange={(e) => {
+                setText(e.target.value);
+                setWatermarkedImage("");
+              }}
+              placeholder="Enter watermark text"
+              className="w-full rounded-2xl border-0 bg-[#EEF2FF] px-4 py-3 text-sm font-semibold text-slate-700 outline-none shadow-[inset_4px_4px_8px_#d1d9e6,inset_-4px_-4px_8px_#ffffff]"
+            />
+          </label>
+
+          <FileUploadBox
+            key={`logo-${inputKey}`}
+            label="Optional Logo Watermark"
+            accept="image/*"
+            file={logoFile}
+            onChange={handleLogoChange}
+          />
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="block">
+              <span className="mb-2 block text-sm font-bold text-slate-900">Position</span>
+              <select
+                value={position}
+                onChange={(e) => {
+                  setPosition(e.target.value as WatermarkPosition);
+                  setWatermarkedImage("");
+                }}
+                className="w-full rounded-2xl border-0 bg-[#EEF2FF] px-4 py-3 text-sm font-semibold text-slate-700 outline-none shadow-[inset_4px_4px_8px_#d1d9e6,inset_-4px_-4px_8px_#ffffff]"
+              >
+                {positions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
             </label>
 
-            <input
-              key={`image-${inputKey}`}
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="block w-full text-sm text-gray-700 file:mr-4 file:rounded-lg file:border-0 file:bg-black file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:opacity-90"
-            />
+            <label className="block">
+              <span className="mb-2 block text-sm font-bold text-slate-900">Text Color</span>
+              <input
+                type="color"
+                value={textColor}
+                onChange={(e) => {
+                  setTextColor(e.target.value);
+                  setWatermarkedImage("");
+                }}
+                className="h-12 w-full rounded-2xl border-0 bg-[#EEF2FF] px-2 py-2 shadow-[inset_4px_4px_8px_#d1d9e6,inset_-4px_-4px_8px_#ffffff]"
+              />
+            </label>
 
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              <div className="sm:col-span-2">
-                <label className="mb-2 block text-sm font-semibold text-gray-900">
-                  Watermark Text
-                </label>
-                <input
-                  type="text"
-                  value={text}
-                  onChange={(e) => {
-                    setText(e.target.value);
-                    setWatermarkedImage("");
-                  }}
-                  placeholder="Enter watermark text"
-                  className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-gray-900"
-                />
-              </div>
+            <label className="block">
+              <span className="mb-2 block text-sm font-bold text-slate-900">Font Size</span>
+              <input
+                type="number"
+                min="8"
+                max="240"
+                value={fontSize}
+                onChange={(e) => {
+                  setFontSize(e.target.value);
+                  setWatermarkedImage("");
+                }}
+                className="w-full rounded-2xl border-0 bg-[#EEF2FF] px-4 py-3 text-sm font-semibold text-slate-700 outline-none shadow-[inset_4px_4px_8px_#d1d9e6,inset_-4px_-4px_8px_#ffffff]"
+              />
+            </label>
 
-              <div className="sm:col-span-2">
-                <label className="mb-2 block text-sm font-semibold text-gray-900">
-                  Optional Logo Watermark
-                </label>
-                <input
-                  key={`logo-${inputKey}`}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleLogoChange}
-                  className="block w-full text-sm text-gray-700 file:mr-4 file:rounded-lg file:border-0 file:bg-white file:px-4 file:py-2 file:text-sm file:font-medium file:text-gray-900 hover:file:bg-gray-100"
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-gray-900">
-                  Position
-                </label>
-                <select
-                  value={position}
-                  onChange={(e) => {
-                    setPosition(e.target.value as WatermarkPosition);
-                    setWatermarkedImage("");
-                  }}
-                  className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-gray-900"
-                >
-                  {positions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-gray-900">
-                  Text Color
-                </label>
-                <input
-                  type="color"
-                  value={textColor}
-                  onChange={(e) => {
-                    setTextColor(e.target.value);
-                    setWatermarkedImage("");
-                  }}
-                  className="h-12 w-full rounded-xl border border-gray-300 bg-white px-2 py-2"
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-gray-900">
-                  Font Size
-                </label>
-                <input
-                  type="number"
-                  min="8"
-                  max="240"
-                  value={fontSize}
-                  onChange={(e) => {
-                    setFontSize(e.target.value);
-                    setWatermarkedImage("");
-                  }}
-                  className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-gray-900"
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-gray-900">
-                  Opacity ({opacityPercent}%)
-                </label>
-                <input
-                  type="range"
-                  min="0.1"
-                  max="1"
-                  step="0.1"
-                  value={opacity}
-                  onChange={(e) => {
-                    setOpacity(e.target.value);
-                    setWatermarkedImage("");
-                  }}
-                  className="w-full"
-                />
-              </div>
-            </div>
-
-            <div className="mt-6 flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={handleReset}
-                className="inline-flex rounded-xl border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-900 transition hover:bg-gray-50"
-              >
-                Reset
-              </button>
-
-              <button
-                type="button"
-                onClick={handleWatermark}
-                className="inline-flex rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90"
-              >
-                {loading ? "Adding Watermark..." : "Add Watermark"}
-              </button>
-            </div>
-
-            {error && (
-              <p className="mt-4 text-sm font-medium text-red-600">{error}</p>
-            )}
+            <label className="block">
+              <span className="mb-2 block text-sm font-bold text-slate-900">Opacity ({opacityPercent}%)</span>
+              <input
+                type="range"
+                min="0.1"
+                max="1"
+                step="0.1"
+                value={opacity}
+                onChange={(e) => {
+                  setOpacity(e.target.value);
+                  setWatermarkedImage("");
+                }}
+                className="w-full accent-indigo-500"
+              />
+            </label>
           </div>
 
-          {(preview || watermarkedImage) && (
-            <div className="mt-8 grid gap-5 md:grid-cols-2">
-              {preview && (
-                <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                  <h2 className="mb-4 text-xl font-semibold text-gray-900">
-                    Original Preview
-                  </h2>
-                  <img
-                    src={preview}
-                    alt="Original preview"
-                    className="w-full rounded-xl border border-gray-200"
-                  />
-                </div>
-              )}
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={handleReset}
+              className="inline-flex rounded-2xl bg-[#EEF2FF] px-5 py-3 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600"
+            >
+              Reset
+            </button>
+            <button
+              type="button"
+              onClick={handleWatermark}
+              disabled={loading}
+              className="inline-flex rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {loading ? "Adding Watermark..." : "Add Watermark"}
+            </button>
+          </div>
+        </ToolControlsPanel>
+      }
+    >
+      <PreviewPanel title="Original Preview">
+        {preview && <img src={preview} alt="Original preview" className="max-h-[520px] w-auto max-w-full rounded-2xl object-contain" />}
+      </PreviewPanel>
 
-              <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                <h2 className="mb-4 text-xl font-semibold text-gray-900">
-                  Watermarked Image
-                </h2>
-                {watermarkedImage ? (
-                  <>
-                    <img
-                      src={watermarkedImage}
-                      alt="Watermarked preview"
-                      className="w-full rounded-xl border border-gray-200"
-                    />
-
-                    <div className="mt-4">
-                      <a
-                        href={watermarkedImage}
-                        download={downloadFileName}
-                        className="inline-flex rounded-xl border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-900 transition hover:bg-gray-50"
-                      >
-                        Download Watermarked Image
-                      </a>
-                    </div>
-                  </>
-                ) : (
-                  <div className="flex min-h-[260px] items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50 p-4">
-                    <p className="text-sm text-gray-500">
-                      Your watermarked image will appear here.
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
+      <ResultPanel
+        title="Watermarked Image"
+        downloadHref={watermarkedImage}
+        downloadName={downloadFileName}
+        downloadLabel="Download Watermarked Image"
+      >
+        {watermarkedImage && <img src={watermarkedImage} alt="Watermarked preview" className="max-h-[520px] w-auto max-w-full rounded-2xl object-contain" />}
+      </ResultPanel>
+    </ToolPageShell>
   );
 }

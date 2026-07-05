@@ -1,10 +1,12 @@
 "use client";
 
 import { ChangeEvent, useMemo, useState } from "react";
-import {
-  PaletteColor,
-  extractColorPalette,
-} from "@/lib/image/color-palette";
+import FileUploadBox from "@/components/tools/FileUploadBox";
+import PreviewPanel from "@/components/tools/PreviewPanel";
+import ResultPanel from "@/components/tools/ResultPanel";
+import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
+import ToolPageShell from "@/components/tools/ToolPageShell";
+import { PaletteColor, extractColorPalette } from "@/lib/image/color-palette";
 
 function getBaseName(fileName: string) {
   return fileName.replace(/\.[^/.]+$/, "");
@@ -19,9 +21,7 @@ export default function ColorPalettePage() {
   const [error, setError] = useState("");
   const [inputKey, setInputKey] = useState(0);
 
-  const paletteFileName = file
-    ? `${getBaseName(file.name)}-palette.json`
-    : "color-palette.json";
+  const paletteFileName = file ? `${getBaseName(file.name)}-palette.json` : "color-palette.json";
 
   const paletteJson = useMemo(
     () =>
@@ -100,128 +100,73 @@ export default function ColorPalettePage() {
   }
 
   return (
-    <section className="py-14">
-      <div className="mx-auto max-w-5xl px-6">
-        <div className="mx-auto max-w-4xl">
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900">
-            Color Palette Extractor
-          </h1>
-          <p className="mt-3 text-lg text-gray-600">
-            Upload an image and extract the top five dominant colors as copyable HEX codes.
-          </p>
+    <ToolPageShell
+      title="Color Palette Extractor"
+      description="Upload an image and extract the top five dominant colors as copyable HEX codes."
+      controls={
+        <ToolControlsPanel error={error}>
+          <FileUploadBox
+            key={inputKey}
+            label="Upload Image"
+            accept="image/*"
+            file={file}
+            onChange={handleFileChange}
+          />
 
-          <div className="mt-8 rounded-2xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
-            <label className="mb-3 block text-sm font-semibold text-gray-900">
-              Upload Image
-            </label>
-
-            <input
-              key={inputKey}
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="block w-full text-sm text-gray-700 file:mr-4 file:rounded-lg file:border-0 file:bg-black file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:opacity-90"
-            />
-
-            <div className="mt-6 flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={handleReset}
-                className="inline-flex rounded-xl border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-900 transition hover:bg-gray-50"
-              >
-                Reset
-              </button>
-
-              <button
-                type="button"
-                onClick={handleExtractPalette}
-                className="inline-flex rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90"
-              >
-                {loading ? "Extracting..." : "Extract Palette"}
-              </button>
-            </div>
-
-            {error && (
-              <p className="mt-4 text-sm font-medium text-red-600">{error}</p>
-            )}
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={handleReset}
+              className="inline-flex rounded-2xl bg-[#EEF2FF] px-5 py-3 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600"
+            >
+              Reset
+            </button>
+            <button
+              type="button"
+              onClick={handleExtractPalette}
+              disabled={loading}
+              className="inline-flex rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {loading ? "Extracting..." : "Extract Palette"}
+            </button>
           </div>
+        </ToolControlsPanel>
+      }
+    >
+      <PreviewPanel title="Original Preview">
+        {preview && <img src={preview} alt="Original preview" className="max-h-[520px] w-auto max-w-full rounded-2xl object-contain" />}
+      </PreviewPanel>
 
-          {(preview || palette.length > 0) && (
-            <div className="mt-8 grid gap-5 md:grid-cols-2">
-              {preview && (
-                <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                  <h2 className="mb-4 text-xl font-semibold text-gray-900">
-                    Original Preview
-                  </h2>
-                  <img
-                    src={preview}
-                    alt="Original preview"
-                    className="w-full rounded-xl border border-gray-200"
-                  />
+      <ResultPanel
+        title="Dominant Colors"
+        downloadHref={paletteDownloadUrl}
+        downloadName={paletteFileName}
+        downloadLabel="Download JSON"
+        emptyText="Your extracted palette will appear here."
+      >
+        {palette.length > 0 && (
+          <div className="w-full space-y-3">
+            {palette.map((color) => (
+              <div key={color.hex} className="flex flex-wrap items-center gap-3 rounded-2xl bg-white/70 p-3">
+                <div className="h-12 w-16 rounded-xl shadow-[inset_3px_3px_7px_rgba(15,23,42,0.12),inset_-3px_-3px_7px_rgba(255,255,255,0.45)]" style={{ backgroundColor: color.hex }} aria-label={`Color ${color.hex}`} />
+                <div className="min-w-0 flex-1">
+                  <p className="font-mono text-sm font-bold text-slate-900">{color.hex}</p>
+                  <p className="text-xs font-semibold text-slate-500">
+                    RGB {color.rgb.r}, {color.rgb.g}, {color.rgb.b}
+                  </p>
                 </div>
-              )}
-
-              <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                <h2 className="mb-4 text-xl font-semibold text-gray-900">
-                  Dominant Colors
-                </h2>
-
-                {palette.length > 0 ? (
-                  <>
-                    <div className="space-y-3">
-                      {palette.map((color) => (
-                        <div
-                          key={color.hex}
-                          className="flex flex-wrap items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-3"
-                        >
-                          <div
-                            className="h-12 w-16 rounded-lg border border-gray-200"
-                            style={{ backgroundColor: color.hex }}
-                            aria-label={`Color ${color.hex}`}
-                          />
-
-                          <div className="min-w-0 flex-1">
-                            <p className="font-mono text-sm font-semibold text-gray-900">
-                              {color.hex}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              RGB {color.rgb.r}, {color.rgb.g}, {color.rgb.b}
-                            </p>
-                          </div>
-
-                          <button
-                            type="button"
-                            onClick={() => handleCopy(color.hex)}
-                            className="inline-flex rounded-xl border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-900 transition hover:bg-white"
-                          >
-                            {copiedHex === color.hex ? "Copied" : "Copy"}
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="mt-4">
-                      <a
-                        href={paletteDownloadUrl}
-                        download={paletteFileName}
-                        className="inline-flex rounded-xl border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-900 transition hover:bg-gray-50"
-                      >
-                        Download JSON
-                      </a>
-                    </div>
-                  </>
-                ) : (
-                  <div className="flex min-h-[260px] items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50 p-4">
-                    <p className="text-sm text-gray-500">
-                      Your extracted palette will appear here.
-                    </p>
-                  </div>
-                )}
+                <button
+                  type="button"
+                  onClick={() => handleCopy(color.hex)}
+                  className="inline-flex rounded-2xl bg-[#EEF2FF] px-4 py-2.5 text-sm font-bold text-slate-700 shadow-[4px_4px_10px_#d1d9e6,-4px_-4px_10px_#ffffff] transition hover:text-indigo-600"
+                >
+                  {copiedHex === color.hex ? "Copied" : "Copy"}
+                </button>
               </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
+            ))}
+          </div>
+        )}
+      </ResultPanel>
+    </ToolPageShell>
   );
 }

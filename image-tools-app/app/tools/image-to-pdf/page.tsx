@@ -1,6 +1,11 @@
 "use client";
 
 import { ChangeEvent, useMemo, useState } from "react";
+import FileUploadBox from "@/components/tools/FileUploadBox";
+import PreviewPanel from "@/components/tools/PreviewPanel";
+import ResultPanel from "@/components/tools/ResultPanel";
+import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
+import ToolPageShell from "@/components/tools/ToolPageShell";
 import { imagesToPdf } from "@/lib/pdf/image-to-pdf";
 
 export default function ImageToPdfPage() {
@@ -10,17 +15,12 @@ export default function ImageToPdfPage() {
   const [error, setError] = useState("");
 
   const previews = useMemo(() => {
-    return files.map((file) => ({
-      name: file.name,
-      url: URL.createObjectURL(file),
-    }));
+    return files.map((file) => ({ name: file.name, url: URL.createObjectURL(file) }));
   }, [files]);
 
   function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
     const selectedFiles = Array.from(event.target.files || []);
-
     if (!selectedFiles.length) return;
-
     setFiles(selectedFiles);
     setPdfUrl("");
     setError("");
@@ -35,11 +35,8 @@ export default function ImageToPdfPage() {
     try {
       setLoading(true);
       setError("");
-
       const pdfBlob = await imagesToPdf(files);
-      const objectUrl = URL.createObjectURL(pdfBlob);
-
-      setPdfUrl(objectUrl);
+      setPdfUrl(URL.createObjectURL(pdfBlob));
     } catch {
       setError("Something went wrong while creating the PDF.");
     } finally {
@@ -48,98 +45,33 @@ export default function ImageToPdfPage() {
   }
 
   return (
-    <section className="py-14">
-      <div className="mx-auto max-w-5xl px-6">
-        <div className="mx-auto max-w-4xl">
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900">
-            Image to PDF
-          </h1>
-          <p className="mt-3 text-lg text-gray-600">
-            Upload one or more images and convert them into a single PDF file.
-          </p>
-
-          <div className="mt-8 rounded-2xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
-            <label className="mb-3 block text-sm font-semibold text-gray-900">
-              Upload Images
-            </label>
-
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleFileChange}
-              className="block w-full text-sm text-gray-700 file:mr-4 file:rounded-lg file:border-0 file:bg-black file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:opacity-90"
-            />
-
-            {files.length > 0 && (
-              <div className="mt-4 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700">
-                Selected images:{" "}
-                <span className="font-semibold">{files.length}</span>
+    <ToolPageShell
+      title="Image to PDF"
+      description="Upload one or more images and convert them into a single PDF file."
+      controls={
+        <ToolControlsPanel error={error}>
+          <FileUploadBox label="Upload Images" accept="image/*" multiple files={files} onChange={handleFileChange} />
+          <button type="button" onClick={handleConvert} disabled={loading} className="rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">
+            {loading ? "Creating PDF..." : "Convert to PDF"}
+          </button>
+        </ToolControlsPanel>
+      }
+    >
+      <PreviewPanel title="Selected Images" emptyText="Selected image previews will appear here.">
+        {previews.length > 0 && (
+          <div className="grid w-full gap-4 sm:grid-cols-2">
+            {previews.map((preview) => (
+              <div key={preview.url} className="rounded-2xl bg-white/70 p-3">
+                <img src={preview.url} alt={preview.name} className="mx-auto max-h-44 w-auto max-w-full rounded-xl object-contain" />
+                <p className="mt-2 truncate text-xs font-semibold text-slate-600">{preview.name}</p>
               </div>
-            )}
-
-            <div className="mt-6">
-              <button
-                onClick={handleConvert}
-                className="inline-flex rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90"
-              >
-                {loading ? "Creating PDF..." : "Convert to PDF"}
-              </button>
-            </div>
-
-            {error && (
-              <p className="mt-4 text-sm font-medium text-red-600">{error}</p>
-            )}
+            ))}
           </div>
-
-          {previews.length > 0 && (
-            <div className="mt-8">
-              <h2 className="text-2xl font-semibold text-gray-900">
-                Selected Images
-              </h2>
-
-              <div className="mt-5 grid gap-5 sm:grid-cols-2 md:grid-cols-3">
-                {previews.map((preview) => (
-                  <div
-                    key={preview.url}
-                    className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm"
-                  >
-                    <img
-                      src={preview.url}
-                      alt={preview.name}
-                      className="w-full rounded-xl border border-gray-200"
-                    />
-                    <p className="mt-3 truncate text-sm text-gray-600">
-                      {preview.name}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {pdfUrl && (
-            <div className="mt-8 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-              <h2 className="text-2xl font-semibold text-gray-900">
-                PDF Ready
-              </h2>
-              <p className="mt-3 text-sm text-gray-600">
-                Your PDF file has been created successfully.
-              </p>
-
-              <div className="mt-4">
-                <a
-                  href={pdfUrl}
-                  download="images.pdf"
-                  className="inline-flex rounded-xl border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-900 transition hover:bg-gray-50"
-                >
-                  Download PDF
-                </a>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
+        )}
+      </PreviewPanel>
+      <ResultPanel title="PDF Result" downloadHref={pdfUrl} downloadName="images.pdf" downloadLabel="Download PDF">
+        {pdfUrl && <p className="text-center text-sm font-semibold text-emerald-700">Your PDF file has been created successfully.</p>}
+      </ResultPanel>
+    </ToolPageShell>
   );
 }

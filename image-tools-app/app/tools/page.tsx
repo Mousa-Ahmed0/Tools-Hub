@@ -1,73 +1,144 @@
-import Link from "next/link";
+"use client";
 
-const tools = [
-  { name: "Image Resizer", href: "/tools/image-resizer", available: true },
-  { name: "Image Compressor", href: "/tools/image-compressor", available: true },
-  { name: "Image Converter", href: "/tools/image-converter", available: true },
-  { name: "Crop Image", href: "/tools/crop-image", available: true },
-  { name: "Rotate Image", href: "/tools/rotate-image", available: true },
-  { name: "Flip Image", href: "/tools/flip-image", available: true },
-  { name: "Image to PDF", href: "/tools/image-to-pdf", available: true },
-  { name: "PDF to Image", href: "/tools/pdf-to-image", available: true },
-  { name: "Resize for Instagram", href: "/tools/resize-for-instagram", available: true },
-  { name: "Image Watermark", href: "/tools/image-watermark", available: true },
-  { name: "OCR Image to Text", href: "/tools/ocr", available: true },
-  { name: "Image Metadata Viewer", href: "/tools/metadata-viewer", available: true },
-  { name: "EXIF Remover", href: "/tools/exif-remover", available: true },
-  { name: "Favicon Generator", href: "/tools/favicon-generator", available: true },
-  { name: "Background Color Remover", href: "/tools/background-color-remover", available: true },
-  { name: "Color Palette Extractor", href: "/tools/color-palette", available: true },
-  { name: "QR Code Generator", href: "/tools/qr-code-generator", available: true },
-  { name: "Color Picker", href: "/tools/color-picker", available: true },
-  { name: "Passport Photo Maker", href: "/tools/passport-photo-maker", available: true },
-];
+import Link from "next/link";
+import { useMemo, useState } from "react";
+import { ToolCategory, toolCategories, tools } from "@/lib/tools";
+
+function getCategoryId(category: ToolCategory) {
+  return category.toLowerCase().replace(/\s+/g, "-");
+}
 
 export default function ToolsPage() {
+  const [search, setSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<ToolCategory | "All">(
+    "All"
+  );
+
+  const filteredTools = useMemo(() => {
+    const query = search.trim().toLowerCase();
+
+    return tools.filter((tool) => {
+      const matchesCategory =
+        selectedCategory === "All" || tool.category === selectedCategory;
+      const matchesSearch =
+        !query ||
+        tool.name.toLowerCase().includes(query) ||
+        tool.description.toLowerCase().includes(query) ||
+        tool.category.toLowerCase().includes(query);
+
+      return matchesCategory && matchesSearch;
+    });
+  }, [search, selectedCategory]);
+
   return (
-    <section className="py-14">
-      <div className="mx-auto max-w-6xl px-6">
-        <div className="max-w-2xl">
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900">
-            Tools
+    <section className="px-5 py-10 sm:py-14">
+      <div className="mx-auto max-w-6xl">
+        <div className="rounded-3xl bg-[#EEF2FF] p-6 shadow-[8px_8px_16px_#d1d9e6,-8px_-8px_16px_#ffffff] sm:p-10">
+          <span className="inline-flex rounded-full bg-white/70 px-4 py-2 text-sm font-semibold text-indigo-600 shadow-[inset_3px_3px_7px_#d1d9e6,inset_-3px_-3px_7px_#ffffff]">
+            Tools Dashboard
+          </span>
+          <h1 className="mt-5 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+            All Image Tools
           </h1>
-          <p className="mt-3 text-lg text-gray-600">
-            MVP tools planned for the first release.
+          <p className="mt-3 max-w-2xl text-lg leading-8 text-slate-600">
+            Search, filter, and open fast browser-based tools for image, PDF,
+            color, and utility workflows.
           </p>
-        </div>
 
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {tools.map((tool) => (
-            <div
-              key={tool.name}
-              className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
-            >
-              <h2 className="text-xl font-semibold text-gray-900">
-                {tool.name}
-              </h2>
+          <div className="mt-8 grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto]">
+            <input
+              type="search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search tools..."
+              className="w-full rounded-2xl border-0 bg-[#EEF2FF] px-5 py-4 text-sm font-semibold text-slate-700 outline-none shadow-[inset_5px_5px_10px_#d1d9e6,inset_-5px_-5px_10px_#ffffff] placeholder:text-slate-400"
+            />
 
-              <p className="mt-3 text-sm leading-6 text-gray-600">
-                {tool.available
-                  ? "This tool is available in the current MVP."
-                  : "Coming soon in the MVP release."}
-              </p>
-
-              <div className="mt-5">
-                {tool.available ? (
-                  <Link
-                    href={tool.href}
-                    className="inline-flex rounded-xl border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-900 transition hover:bg-gray-50"
-                  >
-                    Open Tool
-                  </Link>
-                ) : (
-                  <span className="inline-flex rounded-xl bg-gray-100 px-4 py-2.5 text-sm font-medium text-gray-500">
-                    Not available yet
-                  </span>
-                )}
-              </div>
+            <div className="flex flex-wrap gap-2">
+              {["All", ...toolCategories].map((category) => (
+                <button
+                  key={category}
+                  type="button"
+                  onClick={() =>
+                    setSelectedCategory(category as ToolCategory | "All")
+                  }
+                  className={`rounded-2xl px-4 py-3 text-sm font-bold transition ${
+                    selectedCategory === category
+                      ? "bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow-[6px_6px_14px_#c8d0df,-6px_-6px_14px_#ffffff]"
+                      : "bg-[#EEF2FF] text-slate-600 shadow-[6px_6px_14px_#d1d9e6,-6px_-6px_14px_#ffffff] hover:text-indigo-600"
+                  }`}
+                >
+                  {category}
+                </button>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
+
+        <div className="mt-10 space-y-10">
+          {toolCategories.map((category) => {
+            const categoryTools = filteredTools.filter(
+              (tool) => tool.category === category
+            );
+
+            if (!categoryTools.length) return null;
+
+            return (
+              <section key={category} id={getCategoryId(category)}>
+                <div className="mb-5 flex items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-2xl font-bold text-slate-900">
+                      {category}
+                    </h2>
+                    <p className="mt-1 text-sm text-slate-600">
+                      {categoryTools.length} available tools
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                  {categoryTools.map((tool) => (
+                    <article
+                      key={tool.href}
+                      className="rounded-3xl bg-[#EEF2FF] p-6 shadow-[8px_8px_16px_#d1d9e6,-8px_-8px_16px_#ffffff]"
+                    >
+                      <span className="inline-flex rounded-full bg-white/70 px-3 py-1 text-xs font-bold uppercase tracking-wide text-indigo-600">
+                        {tool.category}
+                      </span>
+                      <h3 className="mt-4 text-xl font-bold text-slate-900">
+                        {tool.name}
+                      </h3>
+                      <p className="mt-3 min-h-12 text-sm leading-6 text-slate-600">
+                        {tool.description}
+                      </p>
+
+                      <div className="mt-5">
+                        {tool.available ? (
+                          <Link
+                            href={tool.href}
+                            className="inline-flex rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95"
+                          >
+                            Open Tool
+                          </Link>
+                        ) : (
+                          <span className="inline-flex rounded-2xl bg-white/70 px-5 py-3 text-sm font-bold text-slate-400">
+                            Coming Soon
+                          </span>
+                        )}
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            );
+          })}
+        </div>
+
+        {!filteredTools.length && (
+          <div className="mt-10 rounded-3xl bg-[#EEF2FF] p-8 text-center text-slate-600 shadow-[8px_8px_16px_#d1d9e6,-8px_-8px_16px_#ffffff]">
+            No tools match your search.
+          </div>
+        )}
       </div>
     </section>
   );
