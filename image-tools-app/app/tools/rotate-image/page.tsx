@@ -15,6 +15,7 @@ export default function RotateImagePage() {
   const [preview, setPreview] = useState<string>("");
   const [rotatedImage, setRotatedImage] = useState<string>("");
   const [degrees, setDegrees] = useState<string>("90");
+  const [currentRotation, setCurrentRotation] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [downloadFileName, setDownloadFileName] = useState("rotated-image.png");
@@ -28,6 +29,7 @@ export default function RotateImagePage() {
     setRotatedImage("");
     setError("");
     setDegrees("90");
+    setCurrentRotation(0);
 
     const originalName = selectedFile.name.replace(/\.[^/.]+$/, "");
     setDownloadFileName(`${originalName}-rotated.png`);
@@ -35,8 +37,15 @@ export default function RotateImagePage() {
 
   function handleReset() {
     setDegrees("90");
+    setCurrentRotation(0);
     setRotatedImage("");
     setError("");
+    if (file) {
+      const originalName = file.name.replace(/\.[^/.]+$/, "");
+      setDownloadFileName(`${originalName}-rotated.png`);
+    } else {
+      setDownloadFileName("rotated-image.png");
+    }
   }
 
   async function handleRotate() {
@@ -56,11 +65,12 @@ export default function RotateImagePage() {
       setLoading(true);
       setError("");
 
-      const result = await rotateImage(file, parsedDegrees);
-      const normalizedDegrees = ((parsedDegrees % 360) + 360) % 360;
+      const nextRotation = ((currentRotation + parsedDegrees) % 360 + 360) % 360;
+      const result = await rotateImage(file, nextRotation);
       const originalName = file.name.replace(/\.[^/.]+$/, "");
 
-      setDownloadFileName(`${originalName}-rotated-${normalizedDegrees}.png`);
+      setCurrentRotation(nextRotation);
+      setDownloadFileName(`${originalName}-rotated-${nextRotation}.png`);
       setRotatedImage(result);
     } catch {
       setError("Something went wrong while rotating the image.");
@@ -111,6 +121,10 @@ export default function RotateImagePage() {
               className="w-full rounded-2xl border-0 bg-[#EEF2FF] px-4 py-3 text-sm font-semibold text-slate-700 outline-none shadow-[inset_4px_4px_8px_#d1d9e6,inset_-4px_-4px_8px_#ffffff]"
             />
           </label>
+
+          <div className="rounded-2xl bg-white/70 px-4 py-3 text-sm font-semibold text-slate-700">
+            Current rotation: {currentRotation} deg
+          </div>
 
           <div className="flex flex-wrap gap-3">
             <button type="button" onClick={handleReset} className="rounded-2xl bg-[#EEF2FF] px-5 py-3 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600">
