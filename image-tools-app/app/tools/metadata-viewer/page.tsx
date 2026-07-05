@@ -2,6 +2,7 @@
 
 import { ChangeEvent, useEffect, useState } from "react";
 import FileUploadBox from "@/components/tools/FileUploadBox";
+import LocalizedText from "@/components/tools/LocalizedText";
 import PreviewPanel from "@/components/tools/PreviewPanel";
 import ResultPanel from "@/components/tools/ResultPanel";
 import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
@@ -70,11 +71,11 @@ export default function MetadataViewerPage() {
         <ToolControlsPanel error={error}>
           <FileUploadBox inputKey={inputKey} label="Upload Image" accept="image/*" file={file} onChange={handleFileChange} />
           {loading && (
-            <div className="rounded-2xl bg-white/70 px-4 py-3 text-sm font-bold text-slate-600">
-              Reading metadata...
+            <div className="rounded-2xl bg-white/70 dark:bg-slate-950/70 px-4 py-3 text-sm font-bold text-slate-600 dark:text-slate-400">
+              <LocalizedText>Reading metadata...</LocalizedText>
             </div>
           )}
-          <button type="button" onClick={handleReset} className="rounded-2xl bg-[#EEF2FF] px-5 py-3 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600">Reset</button>
+          <button type="button" onClick={handleReset} className="rounded-2xl bg-[#EEF2FF] dark:bg-slate-900 px-5 py-3 text-sm font-bold text-slate-700 dark:text-slate-200 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] transition hover:text-indigo-600"><LocalizedText>Reset</LocalizedText></button>
         </ToolControlsPanel>
       }
     >
@@ -83,7 +84,7 @@ export default function MetadataViewerPage() {
       </PreviewPanel>
       <ResultPanel title="Metadata">
         {metadata && (
-          <dl className="w-full space-y-3 rounded-2xl bg-white/70 p-4 text-sm">
+          <dl className="w-full space-y-3 rounded-2xl bg-white/70 dark:bg-slate-950/70 p-4 text-sm">
             {[
               ["File name", metadata.fileName],
               ["File size", formatFileSize(metadata.fileSize)],
@@ -92,8 +93,8 @@ export default function MetadataViewerPage() {
               ["Last modified", formatDate(metadata.lastModified)],
             ].map(([label, value]) => (
               <div key={label}>
-                <dt className="font-bold text-slate-900">{label}</dt>
-                <dd className="mt-1 break-words text-slate-600">{value}</dd>
+                <dt className="font-bold text-slate-900 dark:text-slate-100"><LocalizedText>{label}</LocalizedText></dt>
+                <dd className="mt-1 break-words text-slate-600 dark:text-slate-400">{value}</dd>
               </div>
             ))}
           </dl>
@@ -102,3 +103,4 @@ export default function MetadataViewerPage() {
     </ToolPageShell>
   );
 }
+

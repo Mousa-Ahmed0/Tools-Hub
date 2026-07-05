@@ -2,6 +2,7 @@
 
 import { ChangeEvent, useEffect, useState } from "react";
 import FileUploadBox from "@/components/tools/FileUploadBox";
+import LocalizedText from "@/components/tools/LocalizedText";
 import PreviewPanel from "@/components/tools/PreviewPanel";
 import ResultPanel from "@/components/tools/ResultPanel";
 import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
@@ -93,7 +94,7 @@ export default function PassportPhotoMakerPage() {
           />
 
           <div>
-            <label className="mb-3 block text-sm font-bold text-slate-900">Photo Size</label>
+            <label className="mb-3 block text-sm font-bold text-slate-900 dark:text-slate-100"><LocalizedText>Photo Size</LocalizedText></label>
             <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
               {passportPhotoPresets.map((preset) => (
                 <button
@@ -105,12 +106,12 @@ export default function PassportPhotoMakerPage() {
                   }}
                   className={`rounded-2xl px-4 py-3 text-left text-sm font-bold transition ${
                     selectedPresetKey === preset.key
-                      ? "bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff]"
-                      : "bg-[#EEF2FF] text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] hover:text-indigo-600"
+                      ? "bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b]"
+                      : "bg-[#EEF2FF] dark:bg-slate-900 text-slate-700 dark:text-slate-200 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] hover:text-indigo-600"
                   }`}
                 >
-                  <span className="block">{preset.label}</span>
-                  <span className="mt-1 block text-xs opacity-80">{preset.description}</span>
+                  <span className="block"><LocalizedText>{preset.label}</LocalizedText></span>
+                  <span className="mt-1 block text-xs opacity-80"><LocalizedText>{preset.description}</LocalizedText></span>
                   <span className="mt-1 block text-xs opacity-80">
                     {preset.width} x {preset.height}px
                   </span>
@@ -120,12 +121,12 @@ export default function PassportPhotoMakerPage() {
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <button type="button" onClick={handleReset} className="inline-flex rounded-2xl bg-[#EEF2FF] px-5 py-3 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600">
-              Reset
+            <button type="button" onClick={handleReset} className="inline-flex rounded-2xl bg-[#EEF2FF] dark:bg-slate-900 px-5 py-3 text-sm font-bold text-slate-700 dark:text-slate-200 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] transition hover:text-indigo-600">
+              <LocalizedText>Reset</LocalizedText>
             </button>
           </div>
-          <button type="button" onClick={handleGenerate} disabled={loading} className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">
-            {loading ? "Generating..." : "Generate Photo"}
+          <button type="button" onClick={handleGenerate} disabled={loading} className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">
+            <LocalizedText>{loading ? "Generating..." : "Generate Photo"}</LocalizedText>
           </button>
         </ToolControlsPanel>
       }
@@ -146,3 +147,4 @@ export default function PassportPhotoMakerPage() {
     </ToolPageShell>
   );
 }
+

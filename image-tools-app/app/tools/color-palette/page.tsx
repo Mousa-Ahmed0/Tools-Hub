@@ -2,6 +2,7 @@
 
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import FileUploadBox from "@/components/tools/FileUploadBox";
+import LocalizedText from "@/components/tools/LocalizedText";
 import PreviewPanel from "@/components/tools/PreviewPanel";
 import ResultPanel from "@/components/tools/ResultPanel";
 import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
@@ -126,18 +127,18 @@ export default function ColorPalettePage() {
             <button
               type="button"
               onClick={handleReset}
-              className="inline-flex rounded-2xl bg-[#EEF2FF] px-5 py-3 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600"
+              className="inline-flex rounded-2xl bg-[#EEF2FF] dark:bg-slate-900 px-5 py-3 text-sm font-bold text-slate-700 dark:text-slate-200 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] transition hover:text-indigo-600"
             >
-              Reset
+              <LocalizedText>Reset</LocalizedText>
             </button>
           </div>
           <button
             type="button"
             onClick={handleExtractPalette}
             disabled={loading}
-            className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {loading ? "Extracting..." : "Extract Palette"}
+            <LocalizedText>{loading ? "Extracting..." : "Extract Palette"}</LocalizedText>
           </button>
         </ToolControlsPanel>
       }
@@ -156,20 +157,20 @@ export default function ColorPalettePage() {
         {palette.length > 0 && (
           <div className="w-full space-y-3">
             {palette.map((color) => (
-              <div key={color.hex} className="flex flex-wrap items-center gap-3 rounded-2xl bg-white/70 p-3">
+              <div key={color.hex} className="flex flex-wrap items-center gap-3 rounded-2xl bg-white/70 dark:bg-slate-950/70 p-3">
                 <div className="h-12 w-16 rounded-xl shadow-[inset_3px_3px_7px_rgba(15,23,42,0.12),inset_-3px_-3px_7px_rgba(255,255,255,0.45)]" style={{ backgroundColor: color.hex }} aria-label={`Color ${color.hex}`} />
                 <div className="min-w-0 flex-1">
-                  <p className="font-mono text-sm font-bold text-slate-900">{color.hex}</p>
-                  <p className="text-xs font-semibold text-slate-500">
+                  <p className="font-mono text-sm font-bold text-slate-900 dark:text-slate-100">{color.hex}</p>
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                     RGB {color.rgb.r}, {color.rgb.g}, {color.rgb.b}
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => handleCopy(color.hex)}
-                  className="inline-flex rounded-2xl bg-[#EEF2FF] px-4 py-2.5 text-sm font-bold text-slate-700 shadow-[4px_4px_10px_#d1d9e6,-4px_-4px_10px_#ffffff] transition hover:text-indigo-600"
+                  className="inline-flex rounded-2xl bg-[#EEF2FF] dark:bg-slate-900 px-4 py-2.5 text-sm font-bold text-slate-700 dark:text-slate-200 shadow-[4px_4px_10px_#d1d9e6,-4px_-4px_10px_#ffffff] transition hover:text-indigo-600"
                 >
-                  {copiedHex === color.hex ? "Copied" : "Copy"}
+                  <LocalizedText>{copiedHex === color.hex ? "Copied" : "Copy"}</LocalizedText>
                 </button>
               </div>
             ))}
@@ -179,3 +180,4 @@ export default function ColorPalettePage() {
     </ToolPageShell>
   );
 }
+

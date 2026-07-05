@@ -2,10 +2,12 @@
 
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import FileUploadBox from "@/components/tools/FileUploadBox";
+import LocalizedText from "@/components/tools/LocalizedText";
 import PreviewPanel from "@/components/tools/PreviewPanel";
 import ResultPanel from "@/components/tools/ResultPanel";
 import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
 import ToolPageShell from "@/components/tools/ToolPageShell";
+import { useI18n } from "@/lib/i18n";
 import { WatermarkPosition, watermarkImage } from "@/lib/image/watermark";
 import { revokeObjectUrl } from "@/lib/object-url";
 
@@ -22,6 +24,7 @@ function getBaseName(fileName: string) {
 }
 
 export default function ImageWatermarkPage() {
+  const { t } = useI18n();
   const [file, setFile] = useState<File | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [preview, setPreview] = useState("");
@@ -137,7 +140,7 @@ export default function ImageWatermarkPage() {
           />
 
           <label className="block">
-            <span className="mb-2 block text-sm font-bold text-slate-900">Watermark Text</span>
+            <span className="mb-2 block text-sm font-bold text-slate-900 dark:text-slate-100"><LocalizedText>Watermark Text</LocalizedText></span>
             <input
               type="text"
               value={text}
@@ -145,8 +148,8 @@ export default function ImageWatermarkPage() {
                 setText(e.target.value);
                 setWatermarkedImage("");
               }}
-              placeholder="Enter watermark text"
-              className="w-full rounded-2xl border-0 bg-[#EEF2FF] px-4 py-3 text-sm font-semibold text-slate-700 outline-none shadow-[inset_4px_4px_8px_#d1d9e6,inset_-4px_-4px_8px_#ffffff]"
+              placeholder={t("toolUi.enterWatermarkText")}
+              className="w-full rounded-2xl border-0 bg-[#EEF2FF] dark:bg-slate-900 px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 outline-none shadow-[inset_4px_4px_8px_#d1d9e6,inset_-4px_-4px_8px_#ffffff] dark:shadow-[inset_4px_4px_8px_#020617,inset_-4px_-4px_8px_#1e293b]"
             />
           </label>
 
@@ -160,25 +163,25 @@ export default function ImageWatermarkPage() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block">
-              <span className="mb-2 block text-sm font-bold text-slate-900">Position</span>
+              <span className="mb-2 block text-sm font-bold text-slate-900 dark:text-slate-100"><LocalizedText>Position</LocalizedText></span>
               <select
                 value={position}
                 onChange={(e) => {
                   setPosition(e.target.value as WatermarkPosition);
                   setWatermarkedImage("");
                 }}
-                className="w-full rounded-2xl border-0 bg-[#EEF2FF] px-4 py-3 text-sm font-semibold text-slate-700 outline-none shadow-[inset_4px_4px_8px_#d1d9e6,inset_-4px_-4px_8px_#ffffff]"
+                className="w-full rounded-2xl border-0 bg-[#EEF2FF] dark:bg-slate-900 px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 outline-none shadow-[inset_4px_4px_8px_#d1d9e6,inset_-4px_-4px_8px_#ffffff] dark:shadow-[inset_4px_4px_8px_#020617,inset_-4px_-4px_8px_#1e293b]"
               >
                 {positions.map((option) => (
                   <option key={option.value} value={option.value}>
-                    {option.label}
+                    {t(option.label === "Top Left" ? "toolUi.topLeft" : option.label === "Top Right" ? "toolUi.topRight" : option.label === "Bottom Left" ? "toolUi.bottomLeft" : option.label === "Bottom Right" ? "toolUi.bottomRight" : "toolUi.center")}
                   </option>
                 ))}
               </select>
             </label>
 
             <label className="block">
-              <span className="mb-2 block text-sm font-bold text-slate-900">Text Color</span>
+              <span className="mb-2 block text-sm font-bold text-slate-900 dark:text-slate-100"><LocalizedText>Text Color</LocalizedText></span>
               <input
                 type="color"
                 value={textColor}
@@ -186,12 +189,12 @@ export default function ImageWatermarkPage() {
                   setTextColor(e.target.value);
                   setWatermarkedImage("");
                 }}
-                className="h-12 w-full rounded-2xl border-0 bg-[#EEF2FF] px-2 py-2 shadow-[inset_4px_4px_8px_#d1d9e6,inset_-4px_-4px_8px_#ffffff]"
+                className="h-12 w-full rounded-2xl border-0 bg-[#EEF2FF] dark:bg-slate-900 px-2 py-2 shadow-[inset_4px_4px_8px_#d1d9e6,inset_-4px_-4px_8px_#ffffff] dark:shadow-[inset_4px_4px_8px_#020617,inset_-4px_-4px_8px_#1e293b]"
               />
             </label>
 
             <label className="block">
-              <span className="mb-2 block text-sm font-bold text-slate-900">Font Size</span>
+              <span className="mb-2 block text-sm font-bold text-slate-900 dark:text-slate-100"><LocalizedText>Font Size</LocalizedText></span>
               <input
                 type="number"
                 min="8"
@@ -201,12 +204,12 @@ export default function ImageWatermarkPage() {
                   setFontSize(e.target.value);
                   setWatermarkedImage("");
                 }}
-                className="w-full rounded-2xl border-0 bg-[#EEF2FF] px-4 py-3 text-sm font-semibold text-slate-700 outline-none shadow-[inset_4px_4px_8px_#d1d9e6,inset_-4px_-4px_8px_#ffffff]"
+                className="w-full rounded-2xl border-0 bg-[#EEF2FF] dark:bg-slate-900 px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 outline-none shadow-[inset_4px_4px_8px_#d1d9e6,inset_-4px_-4px_8px_#ffffff] dark:shadow-[inset_4px_4px_8px_#020617,inset_-4px_-4px_8px_#1e293b]"
               />
             </label>
 
             <label className="block">
-              <span className="mb-2 block text-sm font-bold text-slate-900">Opacity ({opacityPercent}%)</span>
+              <span className="mb-2 block text-sm font-bold text-slate-900 dark:text-slate-100"><LocalizedText>Opacity</LocalizedText> ({opacityPercent}%)</span>
               <input
                 type="range"
                 min="0.1"
@@ -226,18 +229,18 @@ export default function ImageWatermarkPage() {
             <button
               type="button"
               onClick={handleReset}
-              className="inline-flex rounded-2xl bg-[#EEF2FF] px-5 py-3 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600"
+              className="inline-flex rounded-2xl bg-[#EEF2FF] dark:bg-slate-900 px-5 py-3 text-sm font-bold text-slate-700 dark:text-slate-200 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] transition hover:text-indigo-600"
             >
-              Reset
+              <LocalizedText>Reset</LocalizedText>
             </button>
           </div>
           <button
             type="button"
             onClick={handleWatermark}
             disabled={loading}
-            className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {loading ? "Adding Watermark..." : "Add Watermark"}
+            <LocalizedText>{loading ? "Adding Watermark..." : "Add Watermark"}</LocalizedText>
           </button>
         </ToolControlsPanel>
       }
@@ -257,3 +260,4 @@ export default function ImageWatermarkPage() {
     </ToolPageShell>
   );
 }
+

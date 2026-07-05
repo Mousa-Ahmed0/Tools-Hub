@@ -2,6 +2,7 @@
 
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import FileUploadBox from "@/components/tools/FileUploadBox";
+import LocalizedText from "@/components/tools/LocalizedText";
 import PreviewPanel from "@/components/tools/PreviewPanel";
 import ResultPanel from "@/components/tools/ResultPanel";
 import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
@@ -97,17 +98,17 @@ export default function OcrPage() {
         <ToolControlsPanel error={error}>
           <FileUploadBox inputKey={inputKey} label="Upload Image" accept="image/*" file={file} onChange={handleFileChange} />
           {(loading || processingStep) && (
-            <div className="rounded-2xl bg-white/70 px-4 py-3 text-sm font-bold text-slate-600">
-              <div className="mb-2 h-2 overflow-hidden rounded-full bg-[#EEF2FF] shadow-[inset_2px_2px_5px_#d1d9e6,inset_-2px_-2px_5px_#ffffff]">
+            <div className="rounded-2xl bg-white/70 dark:bg-slate-950/70 px-4 py-3 text-sm font-bold text-slate-600 dark:text-slate-400">
+              <div className="mb-2 h-2 overflow-hidden rounded-full bg-[#EEF2FF] dark:bg-slate-900 shadow-[inset_2px_2px_5px_#d1d9e6,inset_-2px_-2px_5px_#ffffff]">
                 <div className="h-full w-2/3 animate-pulse rounded-full bg-gradient-to-r from-indigo-500 to-violet-500" />
               </div>
-              {processingStep || "Processing image..."}
+              <LocalizedText>{processingStep || "Processing image..."}</LocalizedText>
             </div>
           )}
           <div className="flex flex-wrap gap-3">
-            <button type="button" onClick={handleReset} className="rounded-2xl bg-[#EEF2FF] px-5 py-3 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600">Reset</button>
+            <button type="button" onClick={handleReset} className="rounded-2xl bg-[#EEF2FF] dark:bg-slate-900 px-5 py-3 text-sm font-bold text-slate-700 dark:text-slate-200 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] transition hover:text-indigo-600"><LocalizedText>Reset</LocalizedText></button>
           </div>
-          <button type="button" onClick={handleExtractText} disabled={loading} className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">{loading ? "Extracting..." : "Extract Text"}</button>
+          <button type="button" onClick={handleExtractText} disabled={loading} className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"><LocalizedText>{loading ? "Extracting..." : "Extract Text"}</LocalizedText></button>
         </ToolControlsPanel>
       }
     >
@@ -118,13 +119,13 @@ export default function OcrPage() {
         {extractedText && (
           <div className="w-full">
             <div className="mb-4 flex flex-wrap justify-end gap-3">
-              <button type="button" onClick={handleCopyText} className="rounded-2xl bg-[#EEF2FF] px-4 py-2.5 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600">{copied ? "Copied" : "Copy All"}</button>
-              <a href={textDownloadUrl} download="ocr-extracted-text.txt" className="rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-4 py-2.5 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95">
-                Download TXT
+              <button type="button" onClick={handleCopyText} className="rounded-2xl bg-[#EEF2FF] dark:bg-slate-900 px-4 py-2.5 text-sm font-bold text-slate-700 dark:text-slate-200 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] transition hover:text-indigo-600"><LocalizedText>{copied ? "Copied" : "Copy All"}</LocalizedText></button>
+              <a href={textDownloadUrl} download="ocr-extracted-text.txt" className="rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-4 py-2.5 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] transition hover:opacity-95">
+                <LocalizedText>Download TXT</LocalizedText>
               </a>
             </div>
-            <article className="max-h-[420px] overflow-auto rounded-3xl bg-white/80 p-5 shadow-[inset_3px_3px_7px_#d1d9e6,inset_-3px_-3px_7px_#ffffff]">
-              <pre className="whitespace-pre-wrap break-words text-sm leading-7 text-slate-800">{extractedText}</pre>
+            <article className="max-h-[420px] overflow-auto rounded-3xl bg-white/80 dark:bg-slate-950/80 p-5 shadow-[inset_3px_3px_7px_#d1d9e6,inset_-3px_-3px_7px_#ffffff]">
+              <pre className="whitespace-pre-wrap break-words text-sm leading-7 text-slate-800 dark:text-slate-200">{extractedText}</pre>
             </article>
           </div>
         )}
@@ -132,3 +133,4 @@ export default function OcrPage() {
     </ToolPageShell>
   );
 }
+

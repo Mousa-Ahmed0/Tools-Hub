@@ -12,6 +12,7 @@
   "dependencies": {
     "jspdf": "^4.2.1",
     "jszip": "^3.10.1",
+    "lucide-react": "^1.23.0",
     "next": "16.2.4",
     "pdfjs-dist": "^5.7.284",
     "qrcode": "^1.5.4",

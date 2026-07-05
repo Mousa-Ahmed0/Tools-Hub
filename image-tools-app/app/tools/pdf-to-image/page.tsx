@@ -2,6 +2,7 @@
 
 import { ChangeEvent, useEffect, useState } from "react";
 import FileUploadBox from "@/components/tools/FileUploadBox";
+import LocalizedText from "@/components/tools/LocalizedText";
 import PreviewPanel from "@/components/tools/PreviewPanel";
 import ResultPanel from "@/components/tools/ResultPanel";
 import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
@@ -158,31 +159,31 @@ export default function PdfToImagePage() {
         <ToolControlsPanel error={error}>
           <FileUploadBox inputKey={inputKey} label="Upload PDF" accept="application/pdf" file={file} onChange={handleFileChange} />
           {file && pageCount > 0 && (
-            <div className="space-y-2 rounded-2xl bg-white/70 px-4 py-3 text-sm font-semibold text-slate-700">
-              <p className="font-bold text-slate-900">PDF Summary</p>
-              <p className="truncate">Name: {file.name}</p>
-              <p>Size: {(file.size / (1024 * 1024)).toFixed(2)} MB</p>
-              <p>Pages: {pageCount}</p>
+            <div className="space-y-2 rounded-2xl bg-white/70 dark:bg-slate-950/70 px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200">
+              <p className="font-bold text-slate-900 dark:text-slate-100"><LocalizedText>PDF Summary</LocalizedText></p>
+              <p className="truncate"><LocalizedText>Name</LocalizedText>: {file.name}</p>
+              <p><LocalizedText>Size</LocalizedText>: {(file.size / (1024 * 1024)).toFixed(2)} MB</p>
+              <p><LocalizedText>Pages</LocalizedText>: {pageCount}</p>
             </div>
           )}
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block">
-              <span className="mb-2 block text-sm font-bold text-slate-900">Page Number</span>
-              <input type="number" min={1} max={pageCount || 1} value={pageNumber} onChange={(e) => handlePageNumberChange(e.target.value)} className="w-full rounded-2xl border-0 bg-[#EEF2FF] px-4 py-3 text-sm font-semibold text-slate-700 outline-none shadow-[inset_4px_4px_8px_#d1d9e6,inset_-4px_-4px_8px_#ffffff]" />
+              <span className="mb-2 block text-sm font-bold text-slate-900 dark:text-slate-100"><LocalizedText>Page Number</LocalizedText></span>
+              <input type="number" min={1} max={pageCount || 1} value={pageNumber} onChange={(e) => handlePageNumberChange(e.target.value)} className="w-full rounded-2xl border-0 bg-[#EEF2FF] dark:bg-slate-900 px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 outline-none shadow-[inset_4px_4px_8px_#d1d9e6,inset_-4px_-4px_8px_#ffffff] dark:shadow-[inset_4px_4px_8px_#020617,inset_-4px_-4px_8px_#1e293b]" />
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm font-bold text-slate-900">Output Format</span>
-              <select value={format} onChange={(e) => handleFormatChange(e.target.value as PdfImageFormat)} className="w-full rounded-2xl border-0 bg-[#EEF2FF] px-4 py-3 text-sm font-semibold text-slate-700 outline-none shadow-[inset_4px_4px_8px_#d1d9e6,inset_-4px_-4px_8px_#ffffff]">
+              <span className="mb-2 block text-sm font-bold text-slate-900 dark:text-slate-100"><LocalizedText>Output Format</LocalizedText></span>
+              <select value={format} onChange={(e) => handleFormatChange(e.target.value as PdfImageFormat)} className="w-full rounded-2xl border-0 bg-[#EEF2FF] dark:bg-slate-900 px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 outline-none shadow-[inset_4px_4px_8px_#d1d9e6,inset_-4px_-4px_8px_#ffffff] dark:shadow-[inset_4px_4px_8px_#020617,inset_-4px_-4px_8px_#1e293b]">
                 <option value="png">PNG</option>
                 <option value="jpeg">JPG</option>
               </select>
             </label>
           </div>
           <div className="flex flex-wrap gap-3">
-            <button type="button" onClick={handleReset} className="rounded-2xl bg-[#EEF2FF] px-5 py-3 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600">Reset</button>
-            <button type="button" onClick={handleConvertAll} disabled={loadingAll} className="rounded-2xl bg-[#EEF2FF] px-5 py-3 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600 disabled:cursor-not-allowed disabled:opacity-60">{loadingAll ? "Converting All..." : "Convert All Pages"}</button>
+            <button type="button" onClick={handleReset} className="rounded-2xl bg-[#EEF2FF] dark:bg-slate-900 px-5 py-3 text-sm font-bold text-slate-700 dark:text-slate-200 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] transition hover:text-indigo-600"><LocalizedText>Reset</LocalizedText></button>
+            <button type="button" onClick={handleConvertAll} disabled={loadingAll} className="rounded-2xl bg-[#EEF2FF] dark:bg-slate-900 px-5 py-3 text-sm font-bold text-slate-700 dark:text-slate-200 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] transition hover:text-indigo-600 disabled:cursor-not-allowed disabled:opacity-60"><LocalizedText>{loadingAll ? "Converting All..." : "Convert All Pages"}</LocalizedText></button>
           </div>
-          <button type="button" onClick={handleConvertSingle} disabled={loadingSingle} className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">{loadingSingle ? "Converting Page..." : "Convert Current Page"}</button>
+          <button type="button" onClick={handleConvertSingle} disabled={loadingSingle} className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"><LocalizedText>{loadingSingle ? "Converting Page..." : "Convert Current Page"}</LocalizedText></button>
         </ToolControlsPanel>
       }
     >
@@ -193,8 +194,9 @@ export default function PdfToImagePage() {
         {imageUrl && <img src={imageUrl} alt="Converted PDF page preview" className="max-h-[520px] w-auto max-w-full rounded-2xl object-contain" />}
       </ResultPanel>
       <ResultPanel title="All Pages ZIP" downloadHref={zipUrl} downloadName={zipDownloadFileName} downloadLabel="Download ZIP">
-        {zipUrl && <p className="text-center text-sm font-semibold text-emerald-700">All PDF pages were converted and packed into a ZIP file.</p>}
+        {zipUrl && <p className="text-center text-sm font-semibold text-emerald-700"><LocalizedText>All PDF pages were converted and packed into a ZIP file.</LocalizedText></p>}
       </ResultPanel>
     </ToolPageShell>
   );
 }
+

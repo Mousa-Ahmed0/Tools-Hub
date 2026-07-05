@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import LocalizedText from "@/components/tools/LocalizedText";
 import ResultPanel from "@/components/tools/ResultPanel";
 import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
 import ToolPageShell from "@/components/tools/ToolPageShell";
@@ -42,13 +43,13 @@ export default function QrCodeGeneratorPage() {
       controls={
         <ToolControlsPanel error={error}>
           <label className="block">
-            <span className="mb-3 block text-sm font-bold text-slate-900">Text or URL</span>
-            <textarea value={inputValue} onChange={(event) => { setInputValue(event.target.value); setQrCode(""); setError(""); }} rows={6} placeholder="https://example.com" className="w-full resize-y rounded-2xl border-0 bg-[#EEF2FF] px-4 py-3 text-sm font-semibold text-slate-700 outline-none shadow-[inset_4px_4px_8px_#d1d9e6,inset_-4px_-4px_8px_#ffffff]" />
+            <span className="mb-3 block text-sm font-bold text-slate-900 dark:text-slate-100"><LocalizedText>Text or URL</LocalizedText></span>
+            <textarea value={inputValue} onChange={(event) => { setInputValue(event.target.value); setQrCode(""); setError(""); }} rows={6} placeholder="https://example.com" className="w-full resize-y rounded-2xl border-0 bg-[#EEF2FF] dark:bg-slate-900 px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 outline-none shadow-[inset_4px_4px_8px_#d1d9e6,inset_-4px_-4px_8px_#ffffff] dark:shadow-[inset_4px_4px_8px_#020617,inset_-4px_-4px_8px_#1e293b]" />
           </label>
           <div className="flex flex-wrap gap-3">
-            <button type="button" onClick={handleReset} className="rounded-2xl bg-[#EEF2FF] px-5 py-3 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600">Reset</button>
+            <button type="button" onClick={handleReset} className="rounded-2xl bg-[#EEF2FF] dark:bg-slate-900 px-5 py-3 text-sm font-bold text-slate-700 dark:text-slate-200 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] transition hover:text-indigo-600"><LocalizedText>Reset</LocalizedText></button>
           </div>
-          <button type="button" onClick={handleGenerate} disabled={loading} className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">{loading ? "Generating..." : "Generate QR Code"}</button>
+          <button type="button" onClick={handleGenerate} disabled={loading} className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"><LocalizedText>{loading ? "Generating..." : "Generate QR Code"}</LocalizedText></button>
         </ToolControlsPanel>
       }
     >
@@ -58,3 +59,4 @@ export default function QrCodeGeneratorPage() {
     </ToolPageShell>
   );
 }
+
