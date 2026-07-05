@@ -2,6 +2,7 @@
 
 import { ChangeEvent, useEffect, useState } from "react";
 import FileUploadBox from "@/components/tools/FileUploadBox";
+import LocalizedText from "@/components/tools/LocalizedText";
 import PreviewPanel from "@/components/tools/PreviewPanel";
 import ResultPanel from "@/components/tools/ResultPanel";
 import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
@@ -81,12 +82,12 @@ export default function ImageToPdfPage() {
         <ToolControlsPanel error={error}>
           <FileUploadBox inputKey={inputKey} label="Upload Images" accept="image/*" multiple files={files} onChange={handleFileChange} />
           <div className="flex flex-wrap gap-3">
-            <button type="button" onClick={handleReset} className="rounded-2xl bg-[#EEF2FF] px-5 py-3 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600">
-              Reset
+            <button type="button" onClick={handleReset} className="rounded-2xl bg-[#EEF2FF] dark:bg-slate-900 px-5 py-3 text-sm font-bold text-slate-700 dark:text-slate-200 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] transition hover:text-indigo-600">
+              <LocalizedText>Reset</LocalizedText>
             </button>
           </div>
-          <button type="button" onClick={handleConvert} disabled={loading} className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">
-            {loading ? "Creating PDF..." : "Convert to PDF"}
+          <button type="button" onClick={handleConvert} disabled={loading} className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">
+            <LocalizedText>{loading ? "Creating PDF..." : "Convert to PDF"}</LocalizedText>
           </button>
         </ToolControlsPanel>
       }
@@ -95,17 +96,18 @@ export default function ImageToPdfPage() {
         {previews.length > 0 && (
           <div className="grid w-full gap-4 sm:grid-cols-2">
             {previews.map((preview) => (
-              <div key={preview.url} className="rounded-2xl bg-white/70 p-3">
+              <div key={preview.url} className="rounded-2xl bg-white/70 dark:bg-slate-950/70 p-3">
                 <img src={preview.url} alt={preview.name} className="mx-auto max-h-44 w-auto max-w-full rounded-xl object-contain" />
-                <p className="mt-2 truncate text-xs font-semibold text-slate-600">{preview.name}</p>
+                <p className="mt-2 truncate text-xs font-semibold text-slate-600 dark:text-slate-400">{preview.name}</p>
               </div>
             ))}
           </div>
         )}
       </PreviewPanel>
       <ResultPanel title="PDF Result" downloadHref={pdfUrl} downloadName={downloadFileName} downloadLabel="Download PDF">
-        {pdfUrl && <p className="text-center text-sm font-semibold text-emerald-700">Your PDF file has been created successfully.</p>}
+        {pdfUrl && <p className="text-center text-sm font-semibold text-emerald-700"><LocalizedText>Your PDF file has been created successfully.</LocalizedText></p>}
       </ResultPanel>
     </ToolPageShell>
   );
 }
+

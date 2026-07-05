@@ -2,6 +2,7 @@
 
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import FileUploadBox from "@/components/tools/FileUploadBox";
+import LocalizedText from "@/components/tools/LocalizedText";
 import PreviewPanel from "@/components/tools/PreviewPanel";
 import ResultPanel from "@/components/tools/ResultPanel";
 import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
@@ -131,8 +132,8 @@ export default function ImageCompressorPage() {
           <FileUploadBox inputKey={inputKey} label="Upload Image" accept="image/*" file={file} onChange={handleFileChange} />
 
           <div>
-            <label className="mb-2 block text-sm font-bold text-slate-900">
-              Quality ({qualityPercent}%)
+            <label className="mb-2 block text-sm font-bold text-slate-900 dark:text-slate-100">
+              <LocalizedText>Quality</LocalizedText> ({qualityPercent}%)
             </label>
             <input
               type="range"
@@ -147,31 +148,31 @@ export default function ImageCompressorPage() {
               }}
               className="w-full accent-indigo-600"
             />
-            <p className="mt-2 text-sm text-slate-500">
-              Lower quality usually means smaller file size.
+            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+              <LocalizedText>Lower quality usually means smaller file size.</LocalizedText>
             </p>
           </div>
 
           {file && (
-            <div className="rounded-2xl bg-white/70 p-4 text-sm text-slate-600">
-              <p className="font-bold text-slate-900">File Info</p>
+            <div className="rounded-2xl bg-white/70 dark:bg-slate-950/70 p-4 text-sm text-slate-600 dark:text-slate-400">
+              <p className="font-bold text-slate-900 dark:text-slate-100"><LocalizedText>File Info</LocalizedText></p>
               <div className="mt-3 space-y-2">
-                <p>Name: <span className="font-semibold text-slate-900">{file.name}</span></p>
-                <p>Type: <span className="font-semibold text-slate-900">{file.type || "Unknown"}</span></p>
-                {dimensions && <p>Dimensions: <span className="font-semibold text-slate-900">{dimensions.width} x {dimensions.height}</span></p>}
-                <p>Original size: <span className="font-semibold text-slate-900">{formatFileSize(file.size)}</span></p>
+                <p><LocalizedText>Name</LocalizedText>: <span className="font-semibold text-slate-900 dark:text-slate-100">{file.name}</span></p>
+                <p><LocalizedText>Type</LocalizedText>: <span className="font-semibold text-slate-900 dark:text-slate-100">{file.type || <LocalizedText>Unknown</LocalizedText>}</span></p>
+                {dimensions && <p><LocalizedText>Dimensions</LocalizedText>: <span className="font-semibold text-slate-900 dark:text-slate-100">{dimensions.width} x {dimensions.height}</span></p>}
+                <p><LocalizedText>Original size</LocalizedText>: <span className="font-semibold text-slate-900 dark:text-slate-100">{formatFileSize(file.size)}</span></p>
               </div>
             </div>
           )}
 
           <div className="flex flex-wrap gap-3">
-            <button type="button" onClick={handleReset} className="rounded-2xl bg-[#EEF2FF] px-5 py-3 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600">
-              Reset
+            <button type="button" onClick={handleReset} className="rounded-2xl bg-[#EEF2FF] dark:bg-slate-900 px-5 py-3 text-sm font-bold text-slate-700 dark:text-slate-200 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] transition hover:text-indigo-600">
+              <LocalizedText>Reset</LocalizedText>
             </button>
           </div>
 
-          <button type="button" onClick={handleCompress} disabled={loading} className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">
-            {loading ? "Compressing..." : "Compress Image"}
+          <button type="button" onClick={handleCompress} disabled={loading} className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">
+            <LocalizedText>{loading ? "Compressing..." : "Compress Image"}</LocalizedText>
           </button>
         </ToolControlsPanel>
       }
@@ -185,10 +186,10 @@ export default function ImageCompressorPage() {
           <div className="w-full">
             <img src={compressedImage} alt="Compressed preview" className="mx-auto max-h-[420px] w-auto max-w-full rounded-2xl object-contain" />
             {compressedSize && (
-              <div className="mt-4 rounded-2xl bg-white/70 p-4 text-sm text-slate-600">
-                <p>Size: <span className="font-bold text-slate-900">{formatFileSize(compressedSize)}</span></p>
-                {savedPercentage && <p>Reduced by: <span className={`font-bold ${isReduced ? "text-emerald-700" : "text-amber-700"}`}>{savedPercentage}%</span></p>}
-                <p>Status: <span className={`font-bold ${isReduced ? "text-emerald-700" : "text-amber-700"}`}>{isReduced ? "Compression successful" : "File generated, but not smaller"}</span></p>
+              <div className="mt-4 rounded-2xl bg-white/70 dark:bg-slate-950/70 p-4 text-sm text-slate-600 dark:text-slate-400">
+                <p><LocalizedText>Size</LocalizedText>: <span className="font-bold text-slate-900 dark:text-slate-100">{formatFileSize(compressedSize)}</span></p>
+                {savedPercentage && <p><LocalizedText>Reduced by</LocalizedText>: <span className={`font-bold ${isReduced ? "text-emerald-700" : "text-amber-700"}`}>{savedPercentage}%</span></p>}
+                <p><LocalizedText>Status</LocalizedText>: <span className={`font-bold ${isReduced ? "text-emerald-700" : "text-amber-700"}`}><LocalizedText>{isReduced ? "Compression successful" : "File generated, but not smaller"}</LocalizedText></span></p>
               </div>
             )}
           </div>
@@ -197,3 +198,4 @@ export default function ImageCompressorPage() {
     </ToolPageShell>
   );
 }
+

@@ -2,6 +2,7 @@
 
 import { ChangeEvent, MouseEvent, useEffect, useMemo, useRef, useState } from "react";
 import FileUploadBox from "@/components/tools/FileUploadBox";
+import LocalizedText from "@/components/tools/LocalizedText";
 import PreviewPanel from "@/components/tools/PreviewPanel";
 import ResultPanel from "@/components/tools/ResultPanel";
 import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
@@ -140,7 +141,7 @@ export default function BackgroundColorRemoverPage() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block">
-              <span className="mb-2 block text-sm font-bold text-slate-900">Background Color</span>
+              <span className="mb-2 block text-sm font-bold text-slate-900 dark:text-slate-100"><LocalizedText>Background Color</LocalizedText></span>
               <input
                 type="color"
                 value={backgroundColor}
@@ -148,12 +149,12 @@ export default function BackgroundColorRemoverPage() {
                   setBackgroundColor(e.target.value);
                   setProcessedImage("");
                 }}
-                className="h-12 w-full rounded-2xl border-0 bg-[#EEF2FF] px-2 py-2 shadow-[inset_4px_4px_8px_#d1d9e6,inset_-4px_-4px_8px_#ffffff]"
+                className="h-12 w-full rounded-2xl border-0 bg-[#EEF2FF] dark:bg-slate-900 px-2 py-2 shadow-[inset_4px_4px_8px_#d1d9e6,inset_-4px_-4px_8px_#ffffff] dark:shadow-[inset_4px_4px_8px_#020617,inset_-4px_-4px_8px_#1e293b]"
               />
             </label>
 
             <label className="block">
-              <span className="mb-2 block text-sm font-bold text-slate-900">Tolerance ({tolerance})</span>
+              <span className="mb-2 block text-sm font-bold text-slate-900 dark:text-slate-100"><LocalizedText>Tolerance</LocalizedText> ({tolerance})</span>
               <input
                 type="range"
                 min="0"
@@ -166,8 +167,8 @@ export default function BackgroundColorRemoverPage() {
                 }}
                 className="w-full accent-indigo-500"
               />
-              <span className="mt-2 block text-sm font-medium text-slate-500">
-                Higher tolerance removes colors close to the selected color.
+              <span className="mt-2 block text-sm font-medium text-slate-500 dark:text-slate-400">
+                <LocalizedText>Higher tolerance removes colors close to the selected color.</LocalizedText>
               </span>
             </label>
           </div>
@@ -175,22 +176,22 @@ export default function BackgroundColorRemoverPage() {
           <button
             type="button"
             onClick={() => setEyedropperEnabled((current) => !current)}
-            className={`rounded-2xl px-5 py-3 text-sm font-bold shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition ${
+            className={`rounded-2xl px-5 py-3 text-sm font-bold shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] transition ${
               eyedropperEnabled
                 ? "bg-gradient-to-r from-indigo-500 to-violet-500 text-white"
-                : "bg-[#EEF2FF] text-slate-700 hover:text-indigo-600"
+                : "bg-[#EEF2FF] dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:text-indigo-600"
             }`}
           >
-            {eyedropperEnabled ? "Click Image to Pick Color" : "Pick Color from Image"}
+            <LocalizedText>{eyedropperEnabled ? "Click Image to Pick Color" : "Pick Color from Image"}</LocalizedText>
           </button>
 
           <div className="flex flex-wrap gap-3">
-            <button type="button" onClick={handleReset} className="inline-flex rounded-2xl bg-[#EEF2FF] px-5 py-3 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600">
-              Reset
+            <button type="button" onClick={handleReset} className="inline-flex rounded-2xl bg-[#EEF2FF] dark:bg-slate-900 px-5 py-3 text-sm font-bold text-slate-700 dark:text-slate-200 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] transition hover:text-indigo-600">
+              <LocalizedText>Reset</LocalizedText>
             </button>
           </div>
-          <button type="button" onClick={handleRemoveColor} disabled={loading} className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">
-            {loading ? "Removing Color..." : "Remove Color"}
+          <button type="button" onClick={handleRemoveColor} disabled={loading} className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">
+            <LocalizedText>{loading ? "Removing Color..." : "Remove Color"}</LocalizedText>
           </button>
         </ToolControlsPanel>
       }
@@ -225,3 +226,4 @@ export default function BackgroundColorRemoverPage() {
     </ToolPageShell>
   );
 }
+

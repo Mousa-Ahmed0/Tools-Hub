@@ -2,6 +2,7 @@
 
 import { ChangeEvent, useEffect, useState } from "react";
 import FileUploadBox from "@/components/tools/FileUploadBox";
+import LocalizedText from "@/components/tools/LocalizedText";
 import PreviewPanel from "@/components/tools/PreviewPanel";
 import ResultPanel from "@/components/tools/ResultPanel";
 import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
@@ -117,8 +118,8 @@ export default function FlipImagePage() {
           <FileUploadBox inputKey={inputKey} label="Upload Image" accept="image/*" file={file} onChange={handleFileChange} />
 
           <div>
-            <label className="mb-3 block text-sm font-bold text-slate-900">
-              Flip Direction
+            <label className="mb-3 block text-sm font-bold text-slate-900 dark:text-slate-100">
+              <LocalizedText>Flip Direction</LocalizedText>
             </label>
             <div className="flex flex-wrap gap-3">
               {(["horizontal", "vertical"] as FlipDirection[]).map((option) => (
@@ -128,23 +129,23 @@ export default function FlipImagePage() {
                   onClick={() => handleDirectionChange(option)}
                   className={`rounded-2xl px-4 py-2.5 text-sm font-bold capitalize transition ${
                     direction === option
-                      ? "bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff]"
-                      : "bg-[#EEF2FF] text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] hover:text-indigo-600"
+                      ? "bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b]"
+                      : "bg-[#EEF2FF] dark:bg-slate-900 text-slate-700 dark:text-slate-200 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] hover:text-indigo-600"
                   }`}
                 >
-                  {option}
+                  <LocalizedText>{option}</LocalizedText>
                 </button>
               ))}
             </div>
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <button type="button" onClick={handleReset} className="rounded-2xl bg-[#EEF2FF] px-5 py-3 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600">
-              Reset
+            <button type="button" onClick={handleReset} className="rounded-2xl bg-[#EEF2FF] dark:bg-slate-900 px-5 py-3 text-sm font-bold text-slate-700 dark:text-slate-200 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] transition hover:text-indigo-600">
+              <LocalizedText>Reset</LocalizedText>
             </button>
           </div>
-          <button type="button" onClick={handleFlip} disabled={loading} className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">
-            {loading ? "Flipping..." : "Flip Image"}
+          <button type="button" onClick={handleFlip} disabled={loading} className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">
+            <LocalizedText>{loading ? "Flipping..." : "Flip Image"}</LocalizedText>
           </button>
         </ToolControlsPanel>
       }
@@ -158,3 +159,4 @@ export default function FlipImagePage() {
     </ToolPageShell>
   );
 }
+

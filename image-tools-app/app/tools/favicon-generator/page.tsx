@@ -2,6 +2,7 @@
 
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import FileUploadBox from "@/components/tools/FileUploadBox";
+import LocalizedText from "@/components/tools/LocalizedText";
 import PreviewPanel from "@/components/tools/PreviewPanel";
 import ResultPanel from "@/components/tools/ResultPanel";
 import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
@@ -95,17 +96,17 @@ export default function FaviconGeneratorPage() {
           />
 
           {loading && (
-            <div className="rounded-2xl bg-white/70 px-4 py-3 text-sm font-bold text-slate-600">
-              Generating favicon files...
+            <div className="rounded-2xl bg-white/70 dark:bg-slate-950/70 px-4 py-3 text-sm font-bold text-slate-600 dark:text-slate-400">
+              <LocalizedText>Generating favicon files...</LocalizedText>
             </div>
           )}
 
           <button
             type="button"
             onClick={handleReset}
-            className="inline-flex w-fit rounded-2xl bg-[#EEF2FF] px-5 py-3 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600"
+            className="inline-flex w-fit rounded-2xl bg-[#EEF2FF] dark:bg-slate-900 px-5 py-3 text-sm font-bold text-slate-700 dark:text-slate-200 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] transition hover:text-indigo-600"
           >
-            Reset
+            <LocalizedText>Reset</LocalizedText>
           </button>
 
           {file && (
@@ -113,9 +114,9 @@ export default function FaviconGeneratorPage() {
               type="button"
               onClick={handleRetryGenerate}
               disabled={loading}
-              className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {loading ? "Generating..." : faviconImages.length ? "Regenerate Favicons" : "Generate Favicons"}
+              <LocalizedText>{loading ? "Generating..." : faviconImages.length ? "Regenerate Favicons" : "Generate Favicons"}</LocalizedText>
             </button>
           )}
         </ToolControlsPanel>
@@ -135,8 +136,8 @@ export default function FaviconGeneratorPage() {
         {faviconImages.length > 0 && (
           <div className="grid w-full gap-3 sm:grid-cols-3">
             {faviconImages.map((image) => (
-              <div key={image.size} className="rounded-2xl bg-white/70 p-4 text-center">
-                <div className="flex h-20 items-center justify-center rounded-xl bg-[#EEF2FF] shadow-[inset_4px_4px_8px_#d1d9e6,inset_-4px_-4px_8px_#ffffff]">
+              <div key={image.size} className="rounded-2xl bg-white/70 dark:bg-slate-950/70 p-4 text-center">
+                <div className="flex h-20 items-center justify-center rounded-xl bg-[#EEF2FF] dark:bg-slate-900 shadow-[inset_4px_4px_8px_#d1d9e6,inset_-4px_-4px_8px_#ffffff] dark:shadow-[inset_4px_4px_8px_#020617,inset_-4px_-4px_8px_#1e293b]">
                   <img
                     src={image.dataUrl}
                     alt={`${image.size} by ${image.size} favicon`}
@@ -145,7 +146,7 @@ export default function FaviconGeneratorPage() {
                     className="rounded"
                   />
                 </div>
-                <p className="mt-3 text-sm font-bold text-slate-900">
+                <p className="mt-3 text-sm font-bold text-slate-900 dark:text-slate-100">
                   {image.size} x {image.size}
                 </p>
               </div>
@@ -156,3 +157,4 @@ export default function FaviconGeneratorPage() {
     </ToolPageShell>
   );
 }
+
