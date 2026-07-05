@@ -1,6 +1,11 @@
 "use client";
 
 import { ChangeEvent, useState } from "react";
+import FileUploadBox from "@/components/tools/FileUploadBox";
+import PreviewPanel from "@/components/tools/PreviewPanel";
+import ResultPanel from "@/components/tools/ResultPanel";
+import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
+import ToolPageShell from "@/components/tools/ToolPageShell";
 import { rotateImage } from "@/lib/image/rotate";
 
 const presetAngles = [90, 180, 270];
@@ -18,10 +23,8 @@ export default function RotateImagePage() {
     const selectedFile = event.target.files?.[0];
     if (!selectedFile) return;
 
-    const objectUrl = URL.createObjectURL(selectedFile);
-
     setFile(selectedFile);
-    setPreview(objectUrl);
+    setPreview(URL.createObjectURL(selectedFile));
     setRotatedImage("");
     setError("");
     setDegrees("90");
@@ -54,11 +57,10 @@ export default function RotateImagePage() {
       setError("");
 
       const result = await rotateImage(file, parsedDegrees);
-
       const normalizedDegrees = ((parsedDegrees % 360) + 360) % 360;
       const originalName = file.name.replace(/\.[^/.]+$/, "");
-      setDownloadFileName(`${originalName}-rotated-${normalizedDegrees}.png`);
 
+      setDownloadFileName(`${originalName}-rotated-${normalizedDegrees}.png`);
       setRotatedImage(result);
     } catch {
       setError("Something went wrong while rotating the image.");
@@ -68,132 +70,65 @@ export default function RotateImagePage() {
   }
 
   return (
-    <section className="py-14">
-      <div className="mx-auto max-w-5xl px-6">
-        <div className="mx-auto max-w-4xl">
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900">
-            Rotate Image
-          </h1>
-          <p className="mt-3 text-lg text-gray-600">
-            Upload an image, choose a preset angle or type your own angle, then download the rotated result.
-          </p>
+    <ToolPageShell
+      title="Rotate Image"
+      description="Upload an image, choose a preset angle or type your own angle, then download the rotated result."
+      controls={
+        <ToolControlsPanel error={error}>
+          <FileUploadBox label="Upload Image" accept="image/*" file={file} onChange={handleFileChange} />
 
-          <div className="mt-8 rounded-2xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
-            <label className="mb-3 block text-sm font-semibold text-gray-900">
-              Upload Image
+          <div>
+            <label className="mb-3 block text-sm font-bold text-slate-900">
+              Quick Angles
             </label>
-
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="block w-full text-sm text-gray-700 file:mr-4 file:rounded-lg file:border-0 file:bg-black file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:opacity-90"
-            />
-
-            <div className="mt-6">
-              <label className="mb-2 block text-sm font-semibold text-gray-900">
-                Quick Angles
-              </label>
-
-              <div className="flex flex-wrap gap-3">
-                {presetAngles.map((angle) => (
-                  <button
-                    key={angle}
-                    type="button"
-                    onClick={() => setDegrees(String(angle))}
-                    className={`inline-flex rounded-xl border px-4 py-2.5 text-sm font-semibold transition ${
-                      degrees === String(angle)
-                        ? "border-black bg-black text-white"
-                        : "border-gray-300 bg-white text-gray-900 hover:bg-gray-50"
-                    }`}
-                  >
-                    {angle}°
-                  </button>
-                ))}
-              </div>
+            <div className="flex flex-wrap gap-3">
+              {presetAngles.map((angle) => (
+                <button
+                  key={angle}
+                  type="button"
+                  onClick={() => setDegrees(String(angle))}
+                  className={`rounded-2xl px-4 py-2.5 text-sm font-bold transition ${
+                    degrees === String(angle)
+                      ? "bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff]"
+                      : "bg-[#EEF2FF] text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] hover:text-indigo-600"
+                  }`}
+                >
+                  {angle} deg
+                </button>
+              ))}
             </div>
-
-            <div className="mt-6">
-              <label className="mb-2 block text-sm font-semibold text-gray-900">
-                Custom Angle
-              </label>
-
-              <input
-                type="number"
-                value={degrees}
-                onChange={(e) => setDegrees(e.target.value)}
-                placeholder="Enter angle, e.g. 45"
-                className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-gray-900"
-              />
-
-              <p className="mt-2 text-sm text-gray-500">
-                You can enter any angle, such as 45, 120, or 270.
-              </p>
-            </div>
-
-            <div className="mt-6 flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={handleReset}
-                className="inline-flex rounded-xl border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-900 transition hover:bg-gray-50"
-              >
-                Reset
-              </button>
-
-              <button
-                onClick={handleRotate}
-                className="inline-flex rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90"
-              >
-                {loading ? "Rotating..." : "Rotate Image"}
-              </button>
-            </div>
-
-            {error && (
-              <p className="mt-4 text-sm font-medium text-red-600">{error}</p>
-            )}
           </div>
 
-          {(preview || rotatedImage) && (
-            <div className="mt-8 grid gap-5 md:grid-cols-2">
-              {preview && (
-                <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                  <h2 className="mb-4 text-xl font-semibold text-gray-900">
-                    Original Preview
-                  </h2>
-                  <img
-                    src={preview}
-                    alt="Original preview"
-                    className="w-full rounded-xl border border-gray-200"
-                  />
-                </div>
-              )}
+          <label className="block">
+            <span className="mb-2 block text-sm font-bold text-slate-900">
+              Custom Angle
+            </span>
+            <input
+              type="number"
+              value={degrees}
+              onChange={(e) => setDegrees(e.target.value)}
+              placeholder="Enter angle, e.g. 45"
+              className="w-full rounded-2xl border-0 bg-[#EEF2FF] px-4 py-3 text-sm font-semibold text-slate-700 outline-none shadow-[inset_4px_4px_8px_#d1d9e6,inset_-4px_-4px_8px_#ffffff]"
+            />
+          </label>
 
-              {rotatedImage && (
-                <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                  <h2 className="mb-4 text-xl font-semibold text-gray-900">
-                    Rotated Image
-                  </h2>
-                  <img
-                    src={rotatedImage}
-                    alt="Rotated preview"
-                    className="w-full rounded-xl border border-gray-200"
-                  />
-
-                  <div className="mt-4">
-                    <a
-                      href={rotatedImage}
-                      download={downloadFileName}
-                      className="inline-flex rounded-xl border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-900 transition hover:bg-gray-50"
-                    >
-                      Download Rotated Image
-                    </a>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
+          <div className="flex flex-wrap gap-3">
+            <button type="button" onClick={handleReset} className="rounded-2xl bg-[#EEF2FF] px-5 py-3 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600">
+              Reset
+            </button>
+            <button type="button" onClick={handleRotate} disabled={loading} className="rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">
+              {loading ? "Rotating..." : "Rotate Image"}
+            </button>
+          </div>
+        </ToolControlsPanel>
+      }
+    >
+      <PreviewPanel title="Original Preview">
+        {preview && <img src={preview} alt="Original preview" className="max-h-[520px] w-auto max-w-full rounded-2xl object-contain" />}
+      </PreviewPanel>
+      <ResultPanel title="Rotated Image" downloadHref={rotatedImage} downloadName={downloadFileName} downloadLabel="Download Rotated Image">
+        {rotatedImage && <img src={rotatedImage} alt="Rotated preview" className="max-h-[520px] w-auto max-w-full rounded-2xl object-contain" />}
+      </ResultPanel>
+    </ToolPageShell>
   );
 }

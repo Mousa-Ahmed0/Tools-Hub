@@ -1,6 +1,10 @@
 "use client";
 
 import { ChangeEvent, useState } from "react";
+import FileUploadBox from "@/components/tools/FileUploadBox";
+import ResultPanel from "@/components/tools/ResultPanel";
+import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
+import ToolPageShell from "@/components/tools/ToolPageShell";
 import {
   getPdfPageCount,
   pdfAllPagesToZip,
@@ -18,10 +22,8 @@ export default function PdfToImagePage() {
   const [loadingSingle, setLoadingSingle] = useState(false);
   const [loadingAll, setLoadingAll] = useState(false);
   const [error, setError] = useState("");
-  const [imageDownloadFileName, setImageDownloadFileName] =
-    useState("pdf-page.png");
-  const [zipDownloadFileName, setZipDownloadFileName] =
-    useState("pdf-pages.zip");
+  const [imageDownloadFileName, setImageDownloadFileName] = useState("pdf-page.png");
+  const [zipDownloadFileName, setZipDownloadFileName] = useState("pdf-pages.zip");
 
   async function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
     const selectedFile = event.target.files?.[0];
@@ -33,15 +35,11 @@ export default function PdfToImagePage() {
       setImageUrl("");
       setZipUrl("");
       setFile(selectedFile);
-
       const pages = await getPdfPageCount(selectedFile);
       setPageCount(pages);
       setPageNumber("1");
-
       const originalName = selectedFile.name.replace(/\.[^/.]+$/, "");
-      setImageDownloadFileName(
-        `${originalName}-page-1.${format === "png" ? "png" : "jpg"}`
-      );
+      setImageDownloadFileName(`${originalName}-page-1.${format === "png" ? "png" : "jpg"}`);
       setZipDownloadFileName(`${originalName}-pages-${format}.zip`);
     } catch {
       setError("Could not read the PDF file.");
@@ -59,7 +57,6 @@ export default function PdfToImagePage() {
     setImageUrl("");
     setZipUrl("");
     setError("");
-
     if (file) {
       const originalName = file.name.replace(/\.[^/.]+$/, "");
       setImageDownloadFileName(`${originalName}-page-1.png`);
@@ -72,26 +69,19 @@ export default function PdfToImagePage() {
       setError("Please upload a PDF first.");
       return;
     }
-
     const parsedPage = Number(pageNumber);
-
     if (!parsedPage || parsedPage < 1 || parsedPage > pageCount) {
       setError("Please enter a valid page number.");
       return;
     }
-
     try {
       setLoadingSingle(true);
       setError("");
       setZipUrl("");
-
       const result = await pdfPageToImage(file, parsedPage, format);
       const originalName = file.name.replace(/\.[^/.]+$/, "");
       const extension = format === "png" ? "png" : "jpg";
-
-      setImageDownloadFileName(
-        `${originalName}-page-${parsedPage}.${extension}`
-      );
+      setImageDownloadFileName(`${originalName}-page-${parsedPage}.${extension}`);
       setImageUrl(result);
     } catch {
       setError("Something went wrong while converting the PDF page.");
@@ -105,15 +95,12 @@ export default function PdfToImagePage() {
       setError("Please upload a PDF first.");
       return;
     }
-
     try {
       setLoadingAll(true);
       setError("");
-
       const zipBlob = await pdfAllPagesToZip(file, format);
       const objectUrl = URL.createObjectURL(zipBlob);
       const originalName = file.name.replace(/\.[^/.]+$/, "");
-
       setZipDownloadFileName(`${originalName}-pages-${format}.zip`);
       setZipUrl(objectUrl);
     } catch {
@@ -124,142 +111,40 @@ export default function PdfToImagePage() {
   }
 
   return (
-    <section className="py-14">
-      <div className="mx-auto max-w-5xl px-6">
-        <div className="mx-auto max-w-4xl">
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900">
-            PDF to Image
-          </h1>
-          <p className="mt-3 text-lg text-gray-600">
-            Upload a PDF, choose a page and output format, then convert one page
-            or all pages into images.
-          </p>
-
-          <div className="mt-8 rounded-2xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
-            <label className="mb-3 block text-sm font-semibold text-gray-900">
-              Upload PDF
+    <ToolPageShell
+      title="PDF to Image"
+      description="Upload a PDF, choose a page and output format, then convert one page or all pages into images."
+      controls={
+        <ToolControlsPanel error={error}>
+          <FileUploadBox label="Upload PDF" accept="application/pdf" file={file} onChange={handleFileChange} />
+          {pageCount > 0 && <div className="rounded-2xl bg-white/70 px-4 py-3 text-sm font-semibold text-slate-700">Total pages: {pageCount}</div>}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="block">
+              <span className="mb-2 block text-sm font-bold text-slate-900">Page Number</span>
+              <input type="number" min={1} max={pageCount || 1} value={pageNumber} onChange={(e) => setPageNumber(e.target.value)} className="w-full rounded-2xl border-0 bg-[#EEF2FF] px-4 py-3 text-sm font-semibold text-slate-700 outline-none shadow-[inset_4px_4px_8px_#d1d9e6,inset_-4px_-4px_8px_#ffffff]" />
             </label>
-
-            <input
-              type="file"
-              accept="application/pdf"
-              onChange={handleFileChange}
-              className="block w-full text-sm text-gray-700 file:mr-4 file:rounded-lg file:border-0 file:bg-black file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:opacity-90"
-            />
-
-            {pageCount > 0 && (
-              <div className="mt-4 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700">
-                Total pages: <span className="font-semibold">{pageCount}</span>
-              </div>
-            )}
-
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-gray-900">
-                  Page Number
-                </label>
-                <input
-                  type="number"
-                  min={1}
-                  max={pageCount || 1}
-                  value={pageNumber}
-                  onChange={(e) => setPageNumber(e.target.value)}
-                  className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-gray-900"
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-gray-900">
-                  Output Format
-                </label>
-
-                <select
-                  value={format}
-                  onChange={(e) => setFormat(e.target.value as PdfImageFormat)}
-                  className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-gray-900"
-                >
-                  <option value="png">PNG</option>
-                  <option value="jpeg">JPG</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="mt-6 flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={handleReset}
-                className="inline-flex rounded-xl border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-900 transition hover:bg-gray-50"
-              >
-                Reset
-              </button>
-
-              <button
-                onClick={handleConvertSingle}
-                className="inline-flex rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90"
-              >
-                {loadingSingle ? "Converting Page..." : "Convert Current Page"}
-              </button>
-
-              <button
-                onClick={handleConvertAll}
-                className="inline-flex rounded-xl border border-black px-5 py-3 text-sm font-semibold text-black transition hover:bg-gray-100"
-              >
-                {loadingAll ? "Converting All Pages..." : "Convert All Pages"}
-              </button>
-            </div>
-
-            {error && (
-              <p className="mt-4 text-sm font-medium text-red-600">{error}</p>
-            )}
+            <label className="block">
+              <span className="mb-2 block text-sm font-bold text-slate-900">Output Format</span>
+              <select value={format} onChange={(e) => setFormat(e.target.value as PdfImageFormat)} className="w-full rounded-2xl border-0 bg-[#EEF2FF] px-4 py-3 text-sm font-semibold text-slate-700 outline-none shadow-[inset_4px_4px_8px_#d1d9e6,inset_-4px_-4px_8px_#ffffff]">
+                <option value="png">PNG</option>
+                <option value="jpeg">JPG</option>
+              </select>
+            </label>
           </div>
-
-          {imageUrl && (
-            <div className="mt-8 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-              <h2 className="mb-4 text-2xl font-semibold text-gray-900">
-                Converted Image
-              </h2>
-
-              <img
-                src={imageUrl}
-                alt="Converted PDF page preview"
-                className="w-full rounded-xl border border-gray-200"
-              />
-
-              <div className="mt-4">
-                <a
-                  href={imageUrl}
-                  download={imageDownloadFileName}
-                  className="inline-flex rounded-xl border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-900 transition hover:bg-gray-50"
-                >
-                  Download Image
-                </a>
-              </div>
-            </div>
-          )}
-
-          {zipUrl && (
-            <div className="mt-8 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-              <h2 className="text-2xl font-semibold text-gray-900">
-                All Pages Ready
-              </h2>
-              <p className="mt-3 text-sm text-gray-600">
-                All PDF pages were converted successfully and packed into a ZIP
-                file.
-              </p>
-
-              <div className="mt-4">
-                <a
-                  href={zipUrl}
-                  download={zipDownloadFileName}
-                  className="inline-flex rounded-xl border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-900 transition hover:bg-gray-50"
-                >
-                  Download ZIP
-                </a>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
+          <div className="flex flex-wrap gap-3">
+            <button type="button" onClick={handleReset} className="rounded-2xl bg-[#EEF2FF] px-5 py-3 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600">Reset</button>
+            <button type="button" onClick={handleConvertSingle} disabled={loadingSingle} className="rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">{loadingSingle ? "Converting Page..." : "Convert Current Page"}</button>
+            <button type="button" onClick={handleConvertAll} disabled={loadingAll} className="rounded-2xl bg-[#EEF2FF] px-5 py-3 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600 disabled:cursor-not-allowed disabled:opacity-60">{loadingAll ? "Converting All..." : "Convert All Pages"}</button>
+          </div>
+        </ToolControlsPanel>
+      }
+    >
+      <ResultPanel title="Converted Image" downloadHref={imageUrl} downloadName={imageDownloadFileName} downloadLabel="Download Image">
+        {imageUrl && <img src={imageUrl} alt="Converted PDF page preview" className="max-h-[520px] w-auto max-w-full rounded-2xl object-contain" />}
+      </ResultPanel>
+      <ResultPanel title="All Pages ZIP" downloadHref={zipUrl} downloadName={zipDownloadFileName} downloadLabel="Download ZIP">
+        {zipUrl && <p className="text-center text-sm font-semibold text-emerald-700">All PDF pages were converted and packed into a ZIP file.</p>}
+      </ResultPanel>
+    </ToolPageShell>
   );
 }

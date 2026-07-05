@@ -1,6 +1,11 @@
 "use client";
 
 import { ChangeEvent, useState } from "react";
+import FileUploadBox from "@/components/tools/FileUploadBox";
+import PreviewPanel from "@/components/tools/PreviewPanel";
+import ResultPanel from "@/components/tools/ResultPanel";
+import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
+import ToolPageShell from "@/components/tools/ToolPageShell";
 import { convertImage } from "@/lib/image/convert";
 
 export default function ImageConverterPage() {
@@ -30,7 +35,6 @@ export default function ImageConverterPage() {
     try {
       setLoading(true);
       setError("");
-
       const result = await convertImage(file, format);
       setConvertedImage(result);
     } catch {
@@ -43,127 +47,40 @@ export default function ImageConverterPage() {
   const downloadName = `converted-image.${format === "jpeg" ? "jpg" : format}`;
 
   return (
-    <section className="py-16">
-      <div className="mx-auto max-w-6xl px-6">
-        <div className="mb-8 rounded-3xl bg-black px-8 py-10 text-white">
-          <h1 className="text-4xl font-bold tracking-tight">Image Converter</h1>
-          <p className="mt-3 max-w-2xl text-base text-gray-300">
-            Convert image files to PNG, JPG, or WEBP directly in your browser.
-          </p>
-        </div>
+    <ToolPageShell
+      title="Image Converter"
+      description="Convert image files to PNG, JPG, or WEBP directly in your browser."
+      controls={
+        <ToolControlsPanel error={error}>
+          <FileUploadBox label="Upload Image" accept="image/*" file={file} onChange={handleFileChange} />
 
-        <div className="grid gap-6 lg:grid-cols-[380px_minmax(0,1fr)]">
-          <aside className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-semibold text-gray-900">Controls</h2>
+          <label className="block">
+            <span className="mb-2 block text-sm font-bold text-slate-900">
+              Output Format
+            </span>
+            <select
+              value={format}
+              onChange={(e) => setFormat(e.target.value as "png" | "jpeg" | "webp")}
+              className="w-full rounded-2xl border-0 bg-[#EEF2FF] px-4 py-3 text-sm font-semibold text-slate-700 outline-none shadow-[inset_4px_4px_8px_#d1d9e6,inset_-4px_-4px_8px_#ffffff]"
+            >
+              <option value="png">PNG</option>
+              <option value="jpeg">JPG</option>
+              <option value="webp">WEBP</option>
+            </select>
+          </label>
 
-            <div className="mt-6">
-              <label className="mb-2 block text-sm font-medium text-gray-700">
-                Upload image
-              </label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                className="block w-full text-sm text-gray-700 file:mr-4 file:rounded-xl file:border-0 file:bg-black file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-gray-800"
-              />
-            </div>
-
-            <div className="mt-6">
-              <label className="mb-2 block text-sm font-medium text-gray-700">
-                Output format
-              </label>
-              <select
-                value={format}
-                onChange={(e) =>
-                  setFormat(e.target.value as "png" | "jpeg" | "webp")
-                }
-                className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-black"
-              >
-                <option value="png">PNG</option>
-                <option value="jpeg">JPG</option>
-                <option value="webp">WEBP</option>
-              </select>
-            </div>
-
-            <div className="mt-6">
-              <button
-                onClick={handleConvert}
-                className="inline-flex rounded-xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:bg-gray-800"
-              >
-                {loading ? "Converting..." : "Convert Image"}
-              </button>
-            </div>
-
-            {error && (
-              <p className="mt-4 text-sm font-medium text-red-600">{error}</p>
-            )}
-          </aside>
-
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-gray-900">Original</h2>
-                {file && (
-                  <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
-                    Uploaded
-                  </span>
-                )}
-              </div>
-
-              <div className="flex min-h-[320px] items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-4">
-                {preview ? (
-                  <img
-                    src={preview}
-                    alt="Original preview"
-                    className="max-h-[420px] w-auto max-w-full rounded-xl border border-gray-200 object-contain"
-                  />
-                ) : (
-                  <p className="text-sm text-gray-500">
-                    Upload an image to preview it here.
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-gray-900">Converted</h2>
-                {convertedImage && (
-                  <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
-                    Ready
-                  </span>
-                )}
-              </div>
-
-              <div className="flex min-h-[320px] items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-4">
-                {convertedImage ? (
-                  <img
-                    src={convertedImage}
-                    alt="Converted preview"
-                    className="max-h-[420px] w-auto max-w-full rounded-xl border border-gray-200 object-contain"
-                  />
-                ) : (
-                  <p className="text-sm text-gray-500">
-                    Your converted image will appear here.
-                  </p>
-                )}
-              </div>
-
-              {convertedImage && (
-                <div className="mt-4">
-                  <a
-                    href={convertedImage}
-                    download={downloadName}
-                    className="inline-flex rounded-xl border border-gray-300 px-5 py-3 text-sm font-medium text-gray-900 transition hover:bg-gray-50"
-                  >
-                    Download Converted Image
-                  </a>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+          <button type="button" onClick={handleConvert} disabled={loading} className="rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">
+            {loading ? "Converting..." : "Convert Image"}
+          </button>
+        </ToolControlsPanel>
+      }
+    >
+      <PreviewPanel title="Original Preview">
+        {preview && <img src={preview} alt="Original preview" className="max-h-[520px] w-auto max-w-full rounded-2xl object-contain" />}
+      </PreviewPanel>
+      <ResultPanel title="Converted Image" downloadHref={convertedImage} downloadName={downloadName} downloadLabel="Download Converted Image">
+        {convertedImage && <img src={convertedImage} alt="Converted preview" className="max-h-[520px] w-auto max-w-full rounded-2xl object-contain" />}
+      </ResultPanel>
+    </ToolPageShell>
   );
 }

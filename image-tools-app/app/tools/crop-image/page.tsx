@@ -1,6 +1,11 @@
 "use client";
 
 import { ChangeEvent, useState } from "react";
+import FileUploadBox from "@/components/tools/FileUploadBox";
+import PreviewPanel from "@/components/tools/PreviewPanel";
+import ResultPanel from "@/components/tools/ResultPanel";
+import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
+import ToolPageShell from "@/components/tools/ToolPageShell";
 import { cropImage } from "@/lib/image/crop";
 
 export default function CropImagePage() {
@@ -23,7 +28,6 @@ export default function CropImagePage() {
 
     const objectUrl = URL.createObjectURL(selectedFile);
     const img = new Image();
-
     img.onload = () => {
       setOriginalWidth(img.width);
       setOriginalHeight(img.height);
@@ -32,21 +36,17 @@ export default function CropImagePage() {
       setCropWidth(String(Math.min(200, img.width)));
       setCropHeight(String(Math.min(200, img.height)));
     };
-
     img.src = objectUrl;
 
     setFile(selectedFile);
     setPreview(objectUrl);
     setCroppedImage("");
     setError("");
-
-    const originalName = selectedFile.name.replace(/\.[^/.]+$/, "");
-    setDownloadFileName(`${originalName}-cropped.png`);
+    setDownloadFileName(`${selectedFile.name.replace(/\.[^/.]+$/, "")}-cropped.png`);
   }
 
   function handleReset() {
     if (!originalWidth || !originalHeight) return;
-
     setX("0");
     setY("0");
     setCropWidth(String(Math.min(200, originalWidth)));
@@ -66,24 +66,12 @@ export default function CropImagePage() {
     const parsedCropWidth = Number(cropWidth);
     const parsedCropHeight = Number(cropHeight);
 
-    if (
-      parsedX < 0 ||
-      parsedY < 0 ||
-      !parsedCropWidth ||
-      !parsedCropHeight ||
-      parsedCropWidth <= 0 ||
-      parsedCropHeight <= 0
-    ) {
+    if (parsedX < 0 || parsedY < 0 || !parsedCropWidth || !parsedCropHeight || parsedCropWidth <= 0 || parsedCropHeight <= 0) {
       setError("Please enter valid crop values.");
       return;
     }
 
-    if (
-      originalWidth &&
-      originalHeight &&
-      (parsedX + parsedCropWidth > originalWidth ||
-        parsedY + parsedCropHeight > originalHeight)
-    ) {
+    if (originalWidth && originalHeight && (parsedX + parsedCropWidth > originalWidth || parsedY + parsedCropHeight > originalHeight)) {
       setError("Crop area exceeds image boundaries.");
       return;
     }
@@ -91,20 +79,9 @@ export default function CropImagePage() {
     try {
       setLoading(true);
       setError("");
-
-      const result = await cropImage(
-        file,
-        parsedX,
-        parsedY,
-        parsedCropWidth,
-        parsedCropHeight
-      );
-
+      const result = await cropImage(file, parsedX, parsedY, parsedCropWidth, parsedCropHeight);
       const originalName = file.name.replace(/\.[^/.]+$/, "");
-      setDownloadFileName(
-        `${originalName}-crop-${parsedCropWidth}x${parsedCropHeight}.png`
-      );
-
+      setDownloadFileName(`${originalName}-crop-${parsedCropWidth}x${parsedCropHeight}.png`);
       setCroppedImage(result);
     } catch {
       setError("Something went wrong while cropping the image.");
@@ -113,151 +90,42 @@ export default function CropImagePage() {
     }
   }
 
+  const inputClass = "w-full rounded-2xl border-0 bg-[#EEF2FF] px-4 py-3 text-sm font-semibold text-slate-700 outline-none shadow-[inset_4px_4px_8px_#d1d9e6,inset_-4px_-4px_8px_#ffffff]";
+
   return (
-    <section className="py-14">
-      <div className="mx-auto max-w-5xl px-6">
-        <div className="mx-auto max-w-4xl">
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900">
-            Crop Image
-          </h1>
-          <p className="mt-3 text-lg text-gray-600">
-            Upload an image, set crop values, and download the cropped result.
-          </p>
-
-          <div className="mt-8 rounded-2xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
-            <label className="mb-3 block text-sm font-semibold text-gray-900">
-              Upload Image
-            </label>
-
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="block w-full text-sm text-gray-700 file:mr-4 file:rounded-lg file:border-0 file:bg-black file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:opacity-90"
-            />
-
-            {originalWidth && originalHeight && (
-              <div className="mt-4 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700">
-                Original size:{" "}
-                <span className="font-semibold">
-                  {originalWidth} × {originalHeight}px
-                </span>
-              </div>
-            )}
-
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-gray-900">
-                  X
-                </label>
-                <input
-                  type="number"
-                  value={x}
-                  onChange={(e) => setX(e.target.value)}
-                  className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-gray-900"
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-gray-900">
-                  Y
-                </label>
-                <input
-                  type="number"
-                  value={y}
-                  onChange={(e) => setY(e.target.value)}
-                  className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-gray-900"
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-gray-900">
-                  Width
-                </label>
-                <input
-                  type="number"
-                  value={cropWidth}
-                  onChange={(e) => setCropWidth(e.target.value)}
-                  className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-gray-900"
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-gray-900">
-                  Height
-                </label>
-                <input
-                  type="number"
-                  value={cropHeight}
-                  onChange={(e) => setCropHeight(e.target.value)}
-                  className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-gray-900"
-                />
-              </div>
-            </div>
-
-            <div className="mt-6 flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={handleReset}
-                className="inline-flex rounded-xl border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-900 transition hover:bg-gray-50"
-              >
-                Reset
-              </button>
-
-              <button
-                onClick={handleCrop}
-                className="inline-flex rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90"
-              >
-                {loading ? "Cropping..." : "Crop Image"}
-              </button>
-            </div>
-
-            {error && (
-              <p className="mt-4 text-sm font-medium text-red-600">{error}</p>
-            )}
+    <ToolPageShell
+      title="Crop Image"
+      description="Upload an image, set crop values, and download the cropped result."
+      controls={
+        <ToolControlsPanel error={error}>
+          <FileUploadBox label="Upload Image" accept="image/*" file={file} onChange={handleFileChange} />
+          {originalWidth && originalHeight && <div className="rounded-2xl bg-white/70 px-4 py-3 text-sm font-semibold text-slate-700">Original size: {originalWidth} x {originalHeight}px</div>}
+          <div className="grid gap-4 sm:grid-cols-2">
+            {[
+              ["X", x, setX],
+              ["Y", y, setY],
+              ["Width", cropWidth, setCropWidth],
+              ["Height", cropHeight, setCropHeight],
+            ].map(([label, value, setter]) => (
+              <label key={label as string} className="block">
+                <span className="mb-2 block text-sm font-bold text-slate-900">{label as string}</span>
+                <input type="number" value={value as string} onChange={(e) => (setter as (next: string) => void)(e.target.value)} className={inputClass} />
+              </label>
+            ))}
           </div>
-
-          {(preview || croppedImage) && (
-            <div className="mt-8 grid gap-5 md:grid-cols-2">
-              {preview && (
-                <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                  <h2 className="mb-4 text-xl font-semibold text-gray-900">
-                    Original Preview
-                  </h2>
-                  <img
-                    src={preview}
-                    alt="Original preview"
-                    className="w-full rounded-xl border border-gray-200"
-                  />
-                </div>
-              )}
-
-              {croppedImage && (
-                <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                  <h2 className="mb-4 text-xl font-semibold text-gray-900">
-                    Cropped Image
-                  </h2>
-                  <img
-                    src={croppedImage}
-                    alt="Cropped preview"
-                    className="w-full rounded-xl border border-gray-200"
-                  />
-
-                  <div className="mt-4">
-                    <a
-                      href={croppedImage}
-                      download={downloadFileName}
-                      className="inline-flex rounded-xl border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-900 transition hover:bg-gray-50"
-                    >
-                      Download Cropped Image
-                    </a>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
+          <div className="flex flex-wrap gap-3">
+            <button type="button" onClick={handleReset} className="rounded-2xl bg-[#EEF2FF] px-5 py-3 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600">Reset</button>
+            <button type="button" onClick={handleCrop} disabled={loading} className="rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">{loading ? "Cropping..." : "Crop Image"}</button>
+          </div>
+        </ToolControlsPanel>
+      }
+    >
+      <PreviewPanel title="Original Preview">
+        {preview && <img src={preview} alt="Original preview" className="max-h-[520px] w-auto max-w-full rounded-2xl object-contain" />}
+      </PreviewPanel>
+      <ResultPanel title="Cropped Image" downloadHref={croppedImage} downloadName={downloadFileName} downloadLabel="Download Cropped Image">
+        {croppedImage && <img src={croppedImage} alt="Cropped preview" className="max-h-[520px] w-auto max-w-full rounded-2xl object-contain" />}
+      </ResultPanel>
+    </ToolPageShell>
   );
 }
