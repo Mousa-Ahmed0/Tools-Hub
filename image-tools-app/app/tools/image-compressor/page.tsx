@@ -1,12 +1,13 @@
 "use client";
 
-import { ChangeEvent, useMemo, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import FileUploadBox from "@/components/tools/FileUploadBox";
 import PreviewPanel from "@/components/tools/PreviewPanel";
 import ResultPanel from "@/components/tools/ResultPanel";
 import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
 import ToolPageShell from "@/components/tools/ToolPageShell";
 import { compressImage } from "@/lib/image/compress";
+import { revokeObjectUrl } from "@/lib/object-url";
 
 function formatFileSize(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
@@ -45,6 +46,12 @@ export default function ImageCompressorPage() {
   const [quality, setQuality] = useState<string>("0.7");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [downloadFileName, setDownloadFileName] = useState("compressed-image.jpg");
+  const [inputKey, setInputKey] = useState(0);
+
+  useEffect(() => {
+    return () => revokeObjectUrl(preview);
+  }, [preview]);
 
   function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
     const selectedFile = event.target.files?.[0];
@@ -56,10 +63,25 @@ export default function ImageCompressorPage() {
     setCompressedSize(null);
     setDimensions(null);
     setError("");
+    setQuality("0.7");
+    setDownloadFileName(`${selectedFile.name.replace(/\.[^/.]+$/, "")}-compressed.jpg`);
 
     getImageDimensions(selectedFile)
       .then((result) => setDimensions(result))
       .catch(() => setDimensions(null));
+  }
+
+  function handleReset() {
+    setFile(null);
+    setPreview("");
+    setCompressedImage("");
+    setCompressedSize(null);
+    setDimensions(null);
+    setQuality("0.7");
+    setLoading(false);
+    setError("");
+    setDownloadFileName("compressed-image.jpg");
+    setInputKey((current) => current + 1);
   }
 
   async function handleCompress() {
@@ -84,6 +106,7 @@ export default function ImageCompressorPage() {
 
       setCompressedImage(result);
       setCompressedSize(resultSize);
+      setDownloadFileName(`${file.name.replace(/\.[^/.]+$/, "")}-compressed.jpg`);
     } catch {
       setError("Something went wrong while compressing the image.");
     } finally {
@@ -105,7 +128,7 @@ export default function ImageCompressorPage() {
       description="Reduce image file size by lowering image quality directly in your browser."
       controls={
         <ToolControlsPanel error={error}>
-          <FileUploadBox label="Upload Image" accept="image/*" file={file} onChange={handleFileChange} />
+          <FileUploadBox inputKey={inputKey} label="Upload Image" accept="image/*" file={file} onChange={handleFileChange} />
 
           <div>
             <label className="mb-2 block text-sm font-bold text-slate-900">
@@ -117,7 +140,11 @@ export default function ImageCompressorPage() {
               max="1"
               step="0.1"
               value={quality}
-              onChange={(e) => setQuality(e.target.value)}
+              onChange={(e) => {
+                setQuality(e.target.value);
+                setCompressedImage("");
+                setCompressedSize(null);
+              }}
               className="w-full accent-indigo-600"
             />
             <p className="mt-2 text-sm text-slate-500">
@@ -137,7 +164,13 @@ export default function ImageCompressorPage() {
             </div>
           )}
 
-          <button type="button" onClick={handleCompress} disabled={loading} className="rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">
+          <div className="flex flex-wrap gap-3">
+            <button type="button" onClick={handleReset} className="rounded-2xl bg-[#EEF2FF] px-5 py-3 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600">
+              Reset
+            </button>
+          </div>
+
+          <button type="button" onClick={handleCompress} disabled={loading} className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">
             {loading ? "Compressing..." : "Compress Image"}
           </button>
         </ToolControlsPanel>
@@ -147,7 +180,7 @@ export default function ImageCompressorPage() {
         {preview && <img src={preview} alt="Original preview" className="max-h-[520px] w-auto max-w-full rounded-2xl object-contain" />}
       </PreviewPanel>
 
-      <ResultPanel title="Compressed Image" downloadHref={compressedImage} downloadName="compressed-image.jpg" downloadLabel="Download Compressed Image">
+      <ResultPanel title="Compressed Image" downloadHref={compressedImage} downloadName={downloadFileName} downloadLabel="Download Compressed Image">
         {compressedImage && (
           <div className="w-full">
             <img src={compressedImage} alt="Compressed preview" className="mx-auto max-h-[420px] w-auto max-w-full rounded-2xl object-contain" />

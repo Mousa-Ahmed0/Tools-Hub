@@ -1,12 +1,13 @@
 "use client";
 
-import { ChangeEvent, MouseEvent, useRef, useState } from "react";
+import { ChangeEvent, MouseEvent, useEffect, useRef, useState } from "react";
 import FileUploadBox from "@/components/tools/FileUploadBox";
 import PreviewPanel from "@/components/tools/PreviewPanel";
 import ResultPanel from "@/components/tools/ResultPanel";
 import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
 import ToolPageShell from "@/components/tools/ToolPageShell";
 import { PickedColor, getImagePixelColor } from "@/lib/image/color-picker";
+import { revokeObjectUrl } from "@/lib/object-url";
 
 export default function ColorPickerPage() {
   const imageRef = useRef<HTMLImageElement | null>(null);
@@ -20,6 +21,10 @@ export default function ColorPickerPage() {
   const rgbValue = selectedColor
     ? `rgb(${selectedColor.rgb.r}, ${selectedColor.rgb.g}, ${selectedColor.rgb.b})`
     : "";
+
+  useEffect(() => {
+    return () => revokeObjectUrl(preview);
+  }, [preview]);
 
   function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
     const selectedFile = event.target.files?.[0];

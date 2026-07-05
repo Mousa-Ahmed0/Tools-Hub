@@ -1,12 +1,13 @@
 "use client";
 
-import { ChangeEvent, useMemo, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import FileUploadBox from "@/components/tools/FileUploadBox";
 import PreviewPanel from "@/components/tools/PreviewPanel";
 import ResultPanel from "@/components/tools/ResultPanel";
 import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
 import ToolPageShell from "@/components/tools/ToolPageShell";
 import { WatermarkPosition, watermarkImage } from "@/lib/image/watermark";
+import { revokeObjectUrl } from "@/lib/object-url";
 
 const positions: { label: string; value: WatermarkPosition }[] = [
   { label: "Top Left", value: "top-left" },
@@ -36,6 +37,10 @@ export default function ImageWatermarkPage() {
   const [inputKey, setInputKey] = useState(0);
 
   const opacityPercent = useMemo(() => Math.round(Number(opacity) * 100), [opacity]);
+
+  useEffect(() => {
+    return () => revokeObjectUrl(preview);
+  }, [preview]);
 
   function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
     const selectedFile = event.target.files?.[0];
@@ -225,15 +230,15 @@ export default function ImageWatermarkPage() {
             >
               Reset
             </button>
-            <button
-              type="button"
-              onClick={handleWatermark}
-              disabled={loading}
-              className="inline-flex rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {loading ? "Adding Watermark..." : "Add Watermark"}
-            </button>
           </div>
+          <button
+            type="button"
+            onClick={handleWatermark}
+            disabled={loading}
+            className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {loading ? "Adding Watermark..." : "Add Watermark"}
+          </button>
         </ToolControlsPanel>
       }
     >

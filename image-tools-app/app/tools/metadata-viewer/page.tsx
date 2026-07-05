@@ -1,12 +1,13 @@
 "use client";
 
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import FileUploadBox from "@/components/tools/FileUploadBox";
 import PreviewPanel from "@/components/tools/PreviewPanel";
 import ResultPanel from "@/components/tools/ResultPanel";
 import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
 import ToolPageShell from "@/components/tools/ToolPageShell";
 import { ImageMetadata, getImageMetadata } from "@/lib/image/metadata";
+import { revokeObjectUrl } from "@/lib/object-url";
 
 function formatFileSize(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
@@ -22,8 +23,13 @@ export default function MetadataViewerPage() {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState("");
   const [metadata, setMetadata] = useState<ImageMetadata | null>(null);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [inputKey, setInputKey] = useState(0);
+
+  useEffect(() => {
+    return () => revokeObjectUrl(preview);
+  }, [preview]);
 
   async function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
     const selectedFile = event.target.files?.[0];
@@ -31,13 +37,19 @@ export default function MetadataViewerPage() {
 
     try {
       setError("");
+      setLoading(true);
       setFile(selectedFile);
       setMetadata(null);
       setPreview(URL.createObjectURL(selectedFile));
       const result = await getImageMetadata(selectedFile);
       setMetadata(result);
     } catch {
+      setFile(null);
+      setPreview("");
+      setMetadata(null);
       setError("Could not read metadata from this image.");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -45,6 +57,7 @@ export default function MetadataViewerPage() {
     setFile(null);
     setPreview("");
     setMetadata(null);
+    setLoading(false);
     setError("");
     setInputKey((current) => current + 1);
   }
@@ -56,6 +69,11 @@ export default function MetadataViewerPage() {
       controls={
         <ToolControlsPanel error={error}>
           <FileUploadBox inputKey={inputKey} label="Upload Image" accept="image/*" file={file} onChange={handleFileChange} />
+          {loading && (
+            <div className="rounded-2xl bg-white/70 px-4 py-3 text-sm font-bold text-slate-600">
+              Reading metadata...
+            </div>
+          )}
           <button type="button" onClick={handleReset} className="rounded-2xl bg-[#EEF2FF] px-5 py-3 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600">Reset</button>
         </ToolControlsPanel>
       }

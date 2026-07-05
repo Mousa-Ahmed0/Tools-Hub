@@ -1,12 +1,13 @@
 "use client";
 
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import FileUploadBox from "@/components/tools/FileUploadBox";
 import PreviewPanel from "@/components/tools/PreviewPanel";
 import ResultPanel from "@/components/tools/ResultPanel";
 import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
 import ToolPageShell from "@/components/tools/ToolPageShell";
 import { rotateImage } from "@/lib/image/rotate";
+import { revokeObjectUrl } from "@/lib/object-url";
 
 const presetAngles = [90, 180, 270];
 
@@ -19,6 +20,11 @@ export default function RotateImagePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [downloadFileName, setDownloadFileName] = useState("rotated-image.png");
+  const [inputKey, setInputKey] = useState(0);
+
+  useEffect(() => {
+    return () => revokeObjectUrl(preview);
+  }, [preview]);
 
   function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
     const selectedFile = event.target.files?.[0];
@@ -36,16 +42,20 @@ export default function RotateImagePage() {
   }
 
   function handleReset() {
+    setFile(null);
+    setPreview("");
     setDegrees("90");
     setCurrentRotation(0);
     setRotatedImage("");
+    setLoading(false);
     setError("");
-    if (file) {
-      const originalName = file.name.replace(/\.[^/.]+$/, "");
-      setDownloadFileName(`${originalName}-rotated.png`);
-    } else {
-      setDownloadFileName("rotated-image.png");
-    }
+    setDownloadFileName("rotated-image.png");
+    setInputKey((current) => current + 1);
+  }
+
+  function handleDegreesChange(value: string) {
+    setDegrees(value);
+    setRotatedImage("");
   }
 
   async function handleRotate() {
@@ -85,7 +95,7 @@ export default function RotateImagePage() {
       description="Upload an image, choose a preset angle or type your own angle, then download the rotated result."
       controls={
         <ToolControlsPanel error={error}>
-          <FileUploadBox label="Upload Image" accept="image/*" file={file} onChange={handleFileChange} />
+          <FileUploadBox inputKey={inputKey} label="Upload Image" accept="image/*" file={file} onChange={handleFileChange} />
 
           <div>
             <label className="mb-3 block text-sm font-bold text-slate-900">
@@ -96,7 +106,7 @@ export default function RotateImagePage() {
                 <button
                   key={angle}
                   type="button"
-                  onClick={() => setDegrees(String(angle))}
+                  onClick={() => handleDegreesChange(String(angle))}
                   className={`rounded-2xl px-4 py-2.5 text-sm font-bold transition ${
                     degrees === String(angle)
                       ? "bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff]"
@@ -116,7 +126,7 @@ export default function RotateImagePage() {
             <input
               type="number"
               value={degrees}
-              onChange={(e) => setDegrees(e.target.value)}
+              onChange={(e) => handleDegreesChange(e.target.value)}
               placeholder="Enter angle, e.g. 45"
               className="w-full rounded-2xl border-0 bg-[#EEF2FF] px-4 py-3 text-sm font-semibold text-slate-700 outline-none shadow-[inset_4px_4px_8px_#d1d9e6,inset_-4px_-4px_8px_#ffffff]"
             />
@@ -130,10 +140,10 @@ export default function RotateImagePage() {
             <button type="button" onClick={handleReset} className="rounded-2xl bg-[#EEF2FF] px-5 py-3 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600">
               Reset
             </button>
-            <button type="button" onClick={handleRotate} disabled={loading} className="rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">
-              {loading ? "Rotating..." : "Rotate Image"}
-            </button>
           </div>
+          <button type="button" onClick={handleRotate} disabled={loading} className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">
+            {loading ? "Rotating..." : "Rotate Image"}
+          </button>
         </ToolControlsPanel>
       }
     >

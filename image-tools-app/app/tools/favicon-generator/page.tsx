@@ -1,12 +1,13 @@
 "use client";
 
-import { ChangeEvent, useMemo, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import FileUploadBox from "@/components/tools/FileUploadBox";
 import PreviewPanel from "@/components/tools/PreviewPanel";
 import ResultPanel from "@/components/tools/ResultPanel";
 import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
 import ToolPageShell from "@/components/tools/ToolPageShell";
 import { GeneratedFaviconImage, generateFavicons } from "@/lib/image/favicon";
+import { revokeObjectUrl } from "@/lib/object-url";
 
 export default function FaviconGeneratorPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -21,6 +22,14 @@ export default function FaviconGeneratorPage() {
     if (!icoBlob) return "";
     return URL.createObjectURL(icoBlob);
   }, [icoBlob]);
+
+  useEffect(() => {
+    return () => revokeObjectUrl(preview);
+  }, [preview]);
+
+  useEffect(() => {
+    return () => revokeObjectUrl(icoUrl);
+  }, [icoUrl]);
 
   function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
     const selectedFile = event.target.files?.[0];
@@ -42,6 +51,17 @@ export default function FaviconGeneratorPage() {
     setIcoBlob(null);
     setError("");
     setInputKey((current) => current + 1);
+  }
+
+  function handleRetryGenerate() {
+    if (!file) {
+      setError("Please upload an image first.");
+      return;
+    }
+
+    setFaviconImages([]);
+    setIcoBlob(null);
+    handleGenerate(file);
   }
 
   async function handleGenerate(selectedFile: File) {
@@ -87,6 +107,17 @@ export default function FaviconGeneratorPage() {
           >
             Reset
           </button>
+
+          {file && (
+            <button
+              type="button"
+              onClick={handleRetryGenerate}
+              disabled={loading}
+              className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {loading ? "Generating..." : faviconImages.length ? "Regenerate Favicons" : "Generate Favicons"}
+            </button>
+          )}
         </ToolControlsPanel>
       }
     >
