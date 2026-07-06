@@ -26,16 +26,27 @@ export default function RootLayout({
       } catch (error) {}
     })();
   `;
+  const localeScript = `
+    (function() {
+      try {
+        var savedLocale = localStorage.getItem('locale');
+        var locale = savedLocale === 'ar' ? 'ar' : 'en';
+        document.documentElement.lang = locale;
+        document.documentElement.dir = locale === 'ar' ? 'rtl' : 'ltr';
+      } catch (error) {}
+    })();
+  `;
 
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="bg-[#EEF2FF] text-slate-900 antialiased transition-colors dark:bg-slate-950 dark:text-slate-100">
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <script dangerouslySetInnerHTML={{ __html: localeScript }} />
         <JsonLd />
         <I18nProvider>
           <div className="flex min-h-screen flex-col bg-[#EEF2FF] transition-colors dark:bg-slate-950">
             <Navbar />
-            <main className="flex-1 pt-32 md:pt-20 lg:pl-72">{children}</main>
+            <main className="app-main flex-1 pt-32 md:pt-20">{children}</main>
             <Footer />
           </div>
         </I18nProvider>

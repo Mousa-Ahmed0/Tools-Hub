@@ -11,6 +11,7 @@ import {
   Mail,
   Palette,
   Settings2,
+  Sparkles,
   type LucideIcon,
 } from "lucide-react";
 import HeaderSearch from "./HeaderSearch";
@@ -25,6 +26,7 @@ const navItems: { labelKey: TranslationKey; href: string; icon: LucideIcon }[] =
   { labelKey: "common.pdfTools", href: "/tools#pdf-tools", icon: FileText },
   { labelKey: "common.colorTools", href: "/tools#color-tools", icon: Palette },
   { labelKey: "common.utilityTools", href: "/tools#utility-tools", icon: Settings2 },
+  { labelKey: "common.aiTools", href: "/tools/ai", icon: Sparkles },
   { labelKey: "common.about", href: "/#about", icon: Info },
   { labelKey: "common.contact", href: "/#contact", icon: Mail },
 ];
@@ -36,12 +38,13 @@ export default function Navbar() {
   function isActive(href: string) {
     if (href === "/") return pathname === "/";
     if (href === "/tools") return pathname === "/tools";
+    if (href === "/tools/ai") return pathname === "/tools/ai";
     return false;
   }
 
   return (
     <>
-      <header className="fixed left-0 right-0 top-0 z-40 border-b border-white/60 bg-[#EEF2FF]/90 px-4 py-3 backdrop-blur dark:border-slate-800 dark:bg-slate-950/90 lg:px-6">
+      <header className="fixed inset-x-0 top-0 z-40 border-b border-white/60 bg-[#EEF2FF]/90 px-4 py-3 backdrop-blur dark:border-slate-800 dark:bg-slate-950/90 lg:px-6">
         <div className="flex w-full flex-wrap items-center justify-between gap-3 md:flex-nowrap md:gap-4">
           <Link
             href="/"
@@ -69,7 +72,7 @@ export default function Navbar() {
         </div>
       </header>
 
-      <aside className="fixed bottom-0 left-0 top-20 z-30 hidden w-72 bg-[#EEF2FF] p-6 transition-colors dark:bg-slate-950 lg:block">
+      <aside className="app-sidebar fixed bottom-0 top-20 z-30 hidden w-72 bg-[#EEF2FF] p-6 transition-colors dark:bg-slate-950 lg:block">
         <nav className="space-y-3 text-sm font-semibold text-slate-600 dark:text-slate-300">
           {navItems.map((item) => (
             <Link

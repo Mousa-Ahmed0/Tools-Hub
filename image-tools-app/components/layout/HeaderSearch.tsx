@@ -33,7 +33,7 @@ export default function HeaderSearch() {
         onChange={(event) => setQuery(event.target.value)}
         placeholder={t("common.searchTools")}
         className={`w-full rounded-3xl border border-slate-200/70 bg-[#F8FAFF] py-3 text-sm font-semibold text-slate-700 outline-none shadow-[inset_5px_5px_10px_#d1d9e6,inset_-5px_-5px_10px_#ffffff] placeholder:text-slate-400 transition focus:text-indigo-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:shadow-[inset_5px_5px_10px_#020617,inset_-5px_-5px_10px_#1e293b] dark:placeholder:text-slate-500 ${
-          direction === "rtl" ? "pl-4 pr-11" : "pl-11 pr-4"
+          direction === "rtl" ? "pl-4 pr-11 text-right" : "pl-11 pr-4 text-left"
         }`}
       />
     </form>

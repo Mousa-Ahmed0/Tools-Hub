@@ -55,6 +55,24 @@ export default function JsonLd() {
         url: absoluteUrl(route.path),
       })),
     },
+    ...toolSeo.map((route) => ({
+      "@type": "SoftwareApplication",
+      "@id": `${absoluteUrl(route.path)}#tool`,
+      name: route.title.replace(" | Image Tools Hub", ""),
+      url: absoluteUrl(route.path),
+      description: route.description,
+      applicationCategory: "MultimediaApplication",
+      operatingSystem: "Web",
+      isAccessibleForFree: true,
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+      },
+      publisher: {
+        "@id": `${absoluteUrl()}#organization`,
+      },
+    })),
     ...allSeoRoutes.map((route) => ({
       "@type": "WebPage",
       "@id": `${absoluteUrl(route.path)}#webpage`,

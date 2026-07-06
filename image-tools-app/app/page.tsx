@@ -24,9 +24,11 @@ const categoryKeys: Record<ToolCategory, TranslationKey> = {
   "PDF Tools": "common.pdfTools",
   "Color Tools": "common.colorTools",
   "Utility Tools": "common.utilityTools",
+  "AI Tools": "common.aiTools",
 };
 
 const popularTools = tools.filter((tool) => featuredToolNames.includes(tool.name));
+const aiPreviewTools = tools.filter((tool) => tool.category === "AI Tools").slice(0, 3);
 
 export default function HomePage() {
   const { t } = useI18n();
@@ -192,6 +194,53 @@ export default function HomePage() {
               <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-400">{t(copyKey as TranslationKey)}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section className="mx-auto mt-14 max-w-6xl rounded-3xl bg-[#EEF2FF] p-8 shadow-[8px_8px_16px_#d1d9e6,-8px_-8px_16px_#ffffff] dark:bg-slate-900 dark:shadow-[8px_8px_16px_#020617,-8px_-8px_16px_#1e293b]">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <span className="inline-flex rounded-full bg-white/70 px-4 py-2 text-sm font-bold text-indigo-600 shadow-[inset_3px_3px_7px_#d1d9e6,inset_-3px_-3px_7px_#ffffff] dark:bg-slate-950/70 dark:text-violet-300 dark:shadow-[inset_3px_3px_7px_#020617,inset_-3px_-3px_7px_#1e293b]">
+              {t("common.aiTools")}
+            </span>
+            <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+              {t("home.aiTitle")}
+            </h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-400">
+              {t("home.aiSubtitle")}
+            </p>
+          </div>
+          <Link
+            href="/tools/ai"
+            className="text-sm font-bold text-indigo-600 transition hover:text-violet-600 dark:text-violet-300"
+          >
+            {t("home.viewAiTools")}
+          </Link>
+        </div>
+
+        <div className="mt-6 grid gap-5 md:grid-cols-3">
+          {aiPreviewTools.map((tool) => {
+            const toolName = t(`${tool.i18nKey}.name` as TranslationKey);
+            const toolDescription = t(`${tool.i18nKey}.description` as TranslationKey);
+
+            return (
+              <Link
+                key={tool.href}
+                href="/tools/ai"
+                className="group rounded-3xl bg-[#EEF2FF] p-5 shadow-[inset_5px_5px_10px_#d1d9e6,inset_-5px_-5px_10px_#ffffff] transition hover:-translate-y-1 dark:bg-slate-950/70 dark:shadow-[inset_5px_5px_10px_#020617,inset_-5px_-5px_10px_#1e293b]"
+              >
+                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#EEF2FF] text-indigo-600 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition group-hover:scale-105 dark:bg-slate-900 dark:text-violet-300 dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b]">
+                  <tool.icon className="h-6 w-6" aria-hidden="true" />
+                </span>
+                <h3 className="mt-4 text-lg font-bold text-slate-900 dark:text-slate-100">
+                  {toolName}
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">
+                  {toolDescription}
+                </p>
+              </Link>
+            );
+          })}
         </div>
       </section>
 
