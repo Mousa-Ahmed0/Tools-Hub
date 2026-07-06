@@ -6,6 +6,8 @@ export const defaultSiteUrl = "https://image-tools-hub.com";
 export const siteDescription =
   "Free browser-first image, PDF, color, and utility tools.";
 
+export const defaultOgImagePath = "/opengraph-image";
+
 export const siteKeywords = [
   "image tools",
   "image resizer",
@@ -39,6 +41,44 @@ export const toolsSeo: RouteSeo = {
     "Browse free online tools for images, PDFs, colors, QR codes, OCR, metadata, and more.",
   priority: 0.9,
 };
+
+export const pageSeo: RouteSeo[] = [
+  {
+    path: "/about",
+    title: "About | Image Tools Hub",
+    description:
+      "Learn about Image Tools Hub, a browser-first collection of free image, PDF, color, and utility tools.",
+    priority: 0.7,
+  },
+  {
+    path: "/contact",
+    title: "Contact | Image Tools Hub",
+    description:
+      "Contact Image Tools Hub for support, bug reports, feature ideas, and product feedback.",
+    priority: 0.6,
+  },
+  {
+    path: "/privacy-policy",
+    title: "Privacy Policy | Image Tools Hub",
+    description:
+      "Read the Image Tools Hub privacy policy for browser-first processing, local preferences, and data handling.",
+    priority: 0.5,
+  },
+  {
+    path: "/terms-of-service",
+    title: "Terms of Service | Image Tools Hub",
+    description:
+      "Read the terms that apply when using Image Tools Hub and its free online tools.",
+    priority: 0.5,
+  },
+  {
+    path: "/tools/ai",
+    title: "AI Tools | Image Tools Hub",
+    description:
+      "Explore planned AI-assisted image tools for captions, alt text, descriptions, OCR summaries, and color suggestions.",
+    priority: 0.7,
+  },
+];
 
 export const toolSeo: RouteSeo[] = [
   {
@@ -141,7 +181,7 @@ export const toolSeo: RouteSeo[] = [
   },
 ].map((route) => ({ priority: 0.8, ...route }));
 
-export const allSeoRoutes = [homeSeo, toolsSeo, ...toolSeo];
+export const allSeoRoutes = [homeSeo, toolsSeo, ...pageSeo, ...toolSeo];
 
 type SeoMetadataInput = {
   title: string;
@@ -178,18 +218,32 @@ export function createSeoMetadata({
 }: SeoMetadataInput): Metadata {
   const configuredSiteUrl = getConfiguredSiteUrl();
   const url = absoluteUrl(path);
+  const ogImageUrl = absoluteUrl(defaultOgImagePath);
 
   return {
     title,
     description,
     applicationName: siteName,
+    creator: siteName,
+    publisher: siteName,
     keywords: siteKeywords,
-    metadataBase: configuredSiteUrl ? new URL(configuredSiteUrl) : undefined,
+    metadataBase: new URL(getSiteUrl()),
     alternates: configuredSiteUrl
       ? {
           canonical: path,
         }
       : undefined,
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+        "max-video-preview": -1,
+      },
+    },
     openGraph: {
       title,
       description,
@@ -198,11 +252,20 @@ export function createSeoMetadata({
       siteName,
       locale: "en_US",
       alternateLocale: ["ar"],
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${siteName} preview`,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
+      images: [ogImageUrl],
     },
   };
 }

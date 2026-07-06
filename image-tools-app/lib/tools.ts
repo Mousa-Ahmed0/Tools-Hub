@@ -9,6 +9,7 @@ import {
   FlipHorizontal,
   Globe,
   IdCard,
+  ImageIcon,
   Info,
   Palette,
   Pipette,
@@ -17,7 +18,9 @@ import {
   RotateCw,
   ScanText,
   ShieldOff,
+  Sparkles,
   Stamp,
+  WandSparkles,
   type LucideIcon,
 } from "lucide-react";
 
@@ -25,7 +28,8 @@ export type ToolCategory =
   | "Image Editing"
   | "PDF Tools"
   | "Color Tools"
-  | "Utility Tools";
+  | "Utility Tools"
+  | "AI Tools";
 
 export type ToolItem = {
   i18nKey: string;
@@ -43,6 +47,7 @@ export const toolCategories: ToolCategory[] = [
   "PDF Tools",
   "Color Tools",
   "Utility Tools",
+  "AI Tools",
 ];
 
 export const tools: ToolItem[] = [
@@ -65,4 +70,9 @@ export const tools: ToolItem[] = [
   { i18nKey: "tool.color-picker", name: "Color Picker", href: "/tools/color-picker", category: "Color Tools", description: "Click an image pixel and copy its HEX or RGB value.", available: true, icon: Pipette },
   { i18nKey: "tool.image-to-pdf", name: "Image to PDF", href: "/tools/image-to-pdf", category: "PDF Tools", description: "Combine uploaded images into a downloadable PDF.", available: true, icon: FileImage },
   { i18nKey: "tool.pdf-to-image", name: "PDF to Image", href: "/tools/pdf-to-image", category: "PDF Tools", description: "Render PDF pages as downloadable image files.", available: true, icon: FileOutput },
+  { i18nKey: "tool.ai-image-caption-generator", name: "AI Image Caption Generator", href: "/tools/ai#ai-image-caption-generator", category: "AI Tools", description: "Generate short image captions with future browser-first AI support.", available: false, icon: Sparkles },
+  { i18nKey: "tool.ai-alt-text-generator", name: "AI Alt Text Generator", href: "/tools/ai#ai-alt-text-generator", category: "AI Tools", description: "Draft accessible alt text for uploaded images.", available: false, icon: ImageIcon },
+  { i18nKey: "tool.ai-image-description", name: "AI Image Description", href: "/tools/ai#ai-image-description", category: "AI Tools", description: "Create longer image descriptions for content workflows.", available: false, icon: FileImage },
+  { i18nKey: "tool.ai-ocr-summary", name: "AI OCR Summary", href: "/tools/ai#ai-ocr-summary", category: "AI Tools", description: "Summarize extracted OCR text after browser-based recognition.", available: false, icon: ScanText },
+  { i18nKey: "tool.ai-color-suggestions", name: "AI Color Suggestions", href: "/tools/ai#ai-color-suggestions", category: "AI Tools", description: "Suggest palette pairings and accessible color combinations.", available: false, icon: WandSparkles },
 ];

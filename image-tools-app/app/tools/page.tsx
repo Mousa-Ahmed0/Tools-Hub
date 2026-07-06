@@ -14,6 +14,7 @@ const categoryKeys: Record<ToolCategory, TranslationKey> = {
   "PDF Tools": "common.pdfTools",
   "Color Tools": "common.colorTools",
   "Utility Tools": "common.utilityTools",
+  "AI Tools": "common.aiTools",
 };
 
 export default function ToolsPage() {
@@ -127,7 +128,9 @@ export default function ToolsPage() {
                       {t(categoryKeys[category])}
                     </h2>
                     <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                      {t("common.availableTools", { count: categoryTools.length })}
+                      {category === "AI Tools"
+                        ? t("common.plannedToolsCount", { count: categoryTools.length })
+                        : t("common.availableTools", { count: categoryTools.length })}
                     </p>
                   </div>
                 </div>

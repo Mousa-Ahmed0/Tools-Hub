@@ -104,7 +104,7 @@ export default function PassportPhotoMakerPage() {
                     setSelectedPresetKey(preset.key);
                     setPassportPhoto("");
                   }}
-                  className={`rounded-2xl px-4 py-3 text-left text-sm font-bold transition ${
+                  className={`rounded-2xl px-4 py-3 text-start text-sm font-bold transition ${
                     selectedPresetKey === preset.key
                       ? "bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b]"
                       : "bg-[#EEF2FF] dark:bg-slate-900 text-slate-700 dark:text-slate-200 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] hover:text-indigo-600"

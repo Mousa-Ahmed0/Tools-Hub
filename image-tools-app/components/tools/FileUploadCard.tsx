@@ -110,7 +110,7 @@ export default function FileUploadCard({
           accept={accept}
           multiple={multiple}
           onChange={onChange}
-          className="block w-full text-sm text-slate-600 file:mr-4 file:rounded-2xl file:border-0 file:bg-gradient-to-r file:from-indigo-500 file:to-violet-500 file:px-4 file:py-2.5 file:text-sm file:font-bold file:text-white hover:file:opacity-95 dark:text-slate-400"
+          className="block w-full text-sm text-slate-600 file:me-4 file:rounded-2xl file:border-0 file:bg-gradient-to-r file:from-indigo-500 file:to-violet-500 file:px-4 file:py-2.5 file:text-sm file:font-bold file:text-white hover:file:opacity-95 dark:text-slate-400"
         />
       </div>
 

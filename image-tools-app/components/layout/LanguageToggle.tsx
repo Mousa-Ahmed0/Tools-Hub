@@ -20,7 +20,7 @@ export default function LanguageToggle() {
         <Globe2 className="h-5 w-5" aria-hidden="true" />
         <span className="sr-only">{label}</span>
       </button>
-      <span className="pointer-events-none absolute right-0 top-full z-50 mt-2 whitespace-nowrap rounded-xl bg-slate-900 px-3 py-1.5 text-xs font-bold text-white opacity-0 shadow-lg transition group-hover:opacity-100 dark:bg-slate-100 dark:text-slate-900">
+      <span className="pointer-events-none absolute end-0 top-full z-50 mt-2 whitespace-nowrap rounded-xl bg-slate-900 px-3 py-1.5 text-xs font-bold text-white opacity-0 shadow-lg transition group-hover:opacity-100 dark:bg-slate-100 dark:text-slate-900">
         {getLocaleLabel(nextLocale)}
       </span>
     </div>
