@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, MouseEvent, useEffect, useMemo, useRef, useState } from "react";
+import { ChangeEvent, PointerEvent, useEffect, useMemo, useRef, useState } from "react";
 import FileUploadBox from "@/components/tools/FileUploadBox";
 import LocalizedText from "@/components/tools/LocalizedText";
 import PreviewPanel from "@/components/tools/PreviewPanel";
@@ -88,7 +88,7 @@ export default function BackgroundColorRemoverPage() {
       .join("")}`;
   }
 
-  function handleImagePick(event: MouseEvent<HTMLImageElement>) {
+  function handleImagePick(event: PointerEvent<HTMLImageElement>) {
     if (!eyedropperEnabled || !imageRef.current) return;
 
     try {
@@ -202,7 +202,7 @@ export default function BackgroundColorRemoverPage() {
             ref={imageRef}
             src={preview}
             alt="Original preview"
-            onClick={handleImagePick}
+            onPointerDown={handleImagePick}
             className={`max-h-[520px] w-auto max-w-full rounded-2xl object-contain ${
               eyedropperEnabled ? "cursor-crosshair ring-4 ring-indigo-300" : ""
             }`}

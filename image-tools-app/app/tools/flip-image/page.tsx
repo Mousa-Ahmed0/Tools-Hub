@@ -3,26 +3,50 @@
 import { ChangeEvent, useEffect, useState } from "react";
 import FileUploadBox from "@/components/tools/FileUploadBox";
 import LocalizedText from "@/components/tools/LocalizedText";
-import PreviewPanel from "@/components/tools/PreviewPanel";
-import ResultPanel from "@/components/tools/ResultPanel";
 import ToolControlsPanel from "@/components/tools/ToolControlsPanel";
-import ToolPageShell from "@/components/tools/ToolPageShell";
-import { flipImage } from "@/lib/image/flip";
-import { rotateImage } from "@/lib/image/rotate";
 import { revokeObjectUrl } from "@/lib/object-url";
 
-type FlipDirection = "horizontal" | "vertical";
+function getBaseName(fileName: string) {
+  return fileName.replace(/\.[^/.]+$/, "");
+}
+
+function loadImage(file: File): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = () => reject(new Error("Could not load image."));
+      image.src = reader.result as string;
+    };
+    reader.onerror = () => reject(new Error("Could not read file."));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function renderFlippedImage(file: File, horizontal: boolean, vertical: boolean) {
+  const image = await loadImage(file);
+  const canvas = document.createElement("canvas");
+  canvas.width = image.width;
+  canvas.height = image.height;
+  const context = canvas.getContext("2d");
+
+  if (!context) throw new Error("Could not create canvas context.");
+
+  context.translate(horizontal ? canvas.width : 0, vertical ? canvas.height : 0);
+  context.scale(horizontal ? -1 : 1, vertical ? -1 : 1);
+  context.drawImage(image, 0, 0);
+
+  return canvas.toDataURL("image/png");
+}
 
 export default function FlipImagePage() {
   const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string>("");
-  const [flippedImage, setFlippedImage] = useState<string>("");
-  const [direction, setDirection] = useState<FlipDirection>("horizontal");
+  const [preview, setPreview] = useState("");
   const [flippedHorizontal, setFlippedHorizontal] = useState(false);
   const [flippedVertical, setFlippedVertical] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [downloadFileName, setDownloadFileName] = useState("flipped-image.png");
   const [inputKey, setInputKey] = useState(0);
 
   useEffect(() => {
@@ -35,35 +59,28 @@ export default function FlipImagePage() {
 
     setFile(selectedFile);
     setPreview(URL.createObjectURL(selectedFile));
-    setFlippedImage("");
-    setError("");
-    setDirection("horizontal");
     setFlippedHorizontal(false);
     setFlippedVertical(false);
-
-    const originalName = selectedFile.name.replace(/\.[^/.]+$/, "");
-    setDownloadFileName(`${originalName}-flipped.png`);
+    setError("");
   }
 
-  function handleReset() {
-    setFile(null);
-    setPreview("");
-    setDirection("horizontal");
+  function handleResetFlip() {
     setFlippedHorizontal(false);
     setFlippedVertical(false);
-    setFlippedImage("");
+    setError("");
+  }
+
+  function handleClear() {
+    setFile(null);
+    setPreview("");
+    setFlippedHorizontal(false);
+    setFlippedVertical(false);
     setLoading(false);
     setError("");
-    setDownloadFileName("flipped-image.png");
     setInputKey((current) => current + 1);
   }
 
-  function handleDirectionChange(nextDirection: FlipDirection) {
-    setDirection(nextDirection);
-    setFlippedImage("");
-  }
-
-  async function handleFlip() {
+  async function handleDownload() {
     if (!file) {
       setError("Please upload an image first.");
       return;
@@ -72,36 +89,19 @@ export default function FlipImagePage() {
     try {
       setLoading(true);
       setError("");
-
-      const nextHorizontal =
-        direction === "horizontal" ? !flippedHorizontal : flippedHorizontal;
-      const nextVertical =
-        direction === "vertical" ? !flippedVertical : flippedVertical;
-      let result: string;
-
-      if (nextHorizontal && nextVertical) {
-        result = await rotateImage(file, 180);
-      } else if (nextHorizontal) {
-        result = await flipImage(file, "horizontal");
-      } else if (nextVertical) {
-        result = await flipImage(file, "vertical");
-      } else {
-        result = preview;
-      }
-
-      const originalName = file.name.replace(/\.[^/.]+$/, "");
+      const result = await renderFlippedImage(file, flippedHorizontal, flippedVertical);
       const stateLabel =
-        nextHorizontal && nextVertical
+        flippedHorizontal && flippedVertical
           ? "horizontal-vertical"
-          : nextHorizontal
+          : flippedHorizontal
           ? "horizontal"
-          : nextVertical
+          : flippedVertical
           ? "vertical"
           : "original";
-      setFlippedHorizontal(nextHorizontal);
-      setFlippedVertical(nextVertical);
-      setDownloadFileName(`${originalName}-flipped-${stateLabel}.png`);
-      setFlippedImage(result);
+      const link = document.createElement("a");
+      link.href = result;
+      link.download = `${getBaseName(file.name)}-flipped-${stateLabel}.png`;
+      link.click();
     } catch {
       setError("Something went wrong while flipping the image.");
     } finally {
@@ -110,53 +110,74 @@ export default function FlipImagePage() {
   }
 
   return (
-    <ToolPageShell
-      title="Flip Image"
-      description="Upload an image, choose a flip direction, and download the result."
-      controls={
-        <ToolControlsPanel error={error}>
-          <FileUploadBox inputKey={inputKey} label="Upload Image" accept="image/*" file={file} onChange={handleFileChange} />
+    <section className="px-5 py-10 sm:py-14">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-8 rounded-3xl bg-[#EEF2FF] p-6 shadow-[8px_8px_16px_#d1d9e6,-8px_-8px_16px_#ffffff] dark:bg-slate-900 dark:shadow-[8px_8px_16px_#020617,-8px_-8px_16px_#1e293b] sm:p-8">
+          <span className="inline-flex rounded-full bg-white/70 px-4 py-2 text-sm font-semibold text-indigo-600 shadow-[inset_3px_3px_7px_#d1d9e6,inset_-3px_-3px_7px_#ffffff] dark:bg-slate-950/70 dark:text-violet-300 dark:shadow-[inset_3px_3px_7px_#020617,inset_-3px_-3px_7px_#1e293b]">
+            <LocalizedText>Flip Image</LocalizedText>
+          </span>
+          <h1 className="mt-5 text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-5xl">
+            <LocalizedText>Flip Image</LocalizedText>
+          </h1>
+          <p className="mt-3 max-w-3xl text-lg leading-8 text-slate-600 dark:text-slate-400">
+            <LocalizedText>Upload an image, choose a flip direction, and download the result.</LocalizedText>
+          </p>
+        </div>
 
-          <div>
-            <label className="mb-3 block text-sm font-bold text-slate-900 dark:text-slate-100">
-              <LocalizedText>Flip Direction</LocalizedText>
-            </label>
-            <div className="flex flex-wrap gap-3">
-              {(["horizontal", "vertical"] as FlipDirection[]).map((option) => (
-                <button
-                  key={option}
-                  type="button"
-                  onClick={() => handleDirectionChange(option)}
-                  className={`rounded-2xl px-4 py-2.5 text-sm font-bold capitalize transition ${
-                    direction === option
-                      ? "bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b]"
-                      : "bg-[#EEF2FF] dark:bg-slate-900 text-slate-700 dark:text-slate-200 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] hover:text-indigo-600"
-                  }`}
-                >
-                  <LocalizedText>{option}</LocalizedText>
-                </button>
-              ))}
+        <div className="grid gap-6 xl:grid-cols-[380px_minmax(0,1fr)]">
+          <ToolControlsPanel error={error}>
+            <FileUploadBox inputKey={inputKey} label="Upload Image" accept="image/*" file={file} onChange={handleFileChange} />
+
+            <div className="rounded-2xl bg-white/70 px-4 py-3 text-sm font-black text-indigo-600 shadow-[inset_3px_3px_7px_#d1d9e6,inset_-3px_-3px_7px_#ffffff] dark:bg-slate-950/70 dark:text-violet-300 dark:shadow-[inset_3px_3px_7px_#020617,inset_-3px_-3px_7px_#1e293b]">
+              <LocalizedText>Status</LocalizedText>:{" "}
+              {flippedHorizontal ? <LocalizedText>horizontal</LocalizedText> : <LocalizedText>Original</LocalizedText>}
+              {flippedVertical ? " + " : ""}
+              {flippedVertical && <LocalizedText>vertical</LocalizedText>}
             </div>
-          </div>
 
-          <div className="flex flex-wrap gap-3">
-            <button type="button" onClick={handleReset} className="rounded-2xl bg-[#EEF2FF] dark:bg-slate-900 px-5 py-3 text-sm font-bold text-slate-700 dark:text-slate-200 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] transition hover:text-indigo-600">
-              <LocalizedText>Reset</LocalizedText>
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+              <button type="button" onClick={() => setFlippedHorizontal((current) => !current)} className={`rounded-2xl px-5 py-3 text-sm font-bold shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] ${flippedHorizontal ? "bg-gradient-to-r from-indigo-500 to-violet-500 text-white" : "bg-[#EEF2FF] text-slate-700 hover:text-indigo-600 dark:bg-slate-900 dark:text-slate-200"}`}>
+                <LocalizedText>horizontal</LocalizedText>
+              </button>
+              <button type="button" onClick={() => setFlippedVertical((current) => !current)} className={`rounded-2xl px-5 py-3 text-sm font-bold shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] ${flippedVertical ? "bg-gradient-to-r from-indigo-500 to-violet-500 text-white" : "bg-[#EEF2FF] text-slate-700 hover:text-indigo-600 dark:bg-slate-900 dark:text-slate-200"}`}>
+                <LocalizedText>vertical</LocalizedText>
+              </button>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+              <button type="button" onClick={handleResetFlip} disabled={!file} className="rounded-2xl bg-[#EEF2FF] px-5 py-3 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-900 dark:text-slate-200 dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b]">
+                <LocalizedText>Reset</LocalizedText> <LocalizedText>Flip Image</LocalizedText>
+              </button>
+              <button type="button" onClick={handleClear} className="rounded-2xl bg-[#EEF2FF] px-5 py-3 text-sm font-bold text-slate-700 shadow-[5px_5px_12px_#d1d9e6,-5px_-5px_12px_#ffffff] transition hover:text-indigo-600 dark:bg-slate-900 dark:text-slate-200 dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b]">
+                <LocalizedText>Clear</LocalizedText>
+              </button>
+            </div>
+
+            <button type="button" onClick={handleDownload} disabled={!file || loading} className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60 dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b]">
+              <LocalizedText>{loading ? "Flipping..." : "Download Flipped Image"}</LocalizedText>
             </button>
-          </div>
-          <button type="button" onClick={handleFlip} disabled={loading} className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-[5px_5px_12px_#c8d0df,-5px_-5px_12px_#ffffff] dark:shadow-[5px_5px_12px_#020617,-5px_-5px_12px_#1e293b] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60">
-            <LocalizedText>{loading ? "Flipping..." : "Flip Image"}</LocalizedText>
-          </button>
-        </ToolControlsPanel>
-      }
-    >
-      <PreviewPanel title="Original Preview">
-        {preview && <img src={preview} alt="Original preview" className="max-h-[520px] w-auto max-w-full rounded-2xl object-contain" />}
-      </PreviewPanel>
-      <ResultPanel title="Flipped Image" downloadHref={flippedImage} downloadName={downloadFileName} downloadLabel="Download Flipped Image">
-        {flippedImage && <img src={flippedImage} alt="Flipped preview" className="max-h-[520px] w-auto max-w-full rounded-2xl object-contain" />}
-      </ResultPanel>
-    </ToolPageShell>
+          </ToolControlsPanel>
+
+          <section className="rounded-3xl bg-[#EEF2FF] p-5 shadow-[8px_8px_16px_#d1d9e6,-8px_-8px_16px_#ffffff] dark:bg-slate-900 dark:shadow-[8px_8px_16px_#020617,-8px_-8px_16px_#1e293b]">
+            <div className="flex min-h-[560px] items-center justify-center overflow-auto rounded-3xl bg-[#EEF2FF] p-10 shadow-[inset_6px_6px_14px_#d1d9e6,inset_-6px_-6px_14px_#ffffff] dark:bg-slate-950/40 dark:shadow-[inset_6px_6px_14px_#020617,inset_-6px_-6px_14px_#1e293b]">
+              {preview ? (
+                <img
+                  src={preview}
+                  alt="Flip editor"
+                  draggable={false}
+                  className="max-h-[420px] max-w-full rounded-2xl object-contain shadow-[5px_5px_14px_#c8d0df,-5px_-5px_14px_#ffffff] transition-transform duration-200 dark:shadow-[5px_5px_14px_#020617,-5px_-5px_14px_#1e293b]"
+                  style={{ transform: `scale(${flippedHorizontal ? -1 : 1}, ${flippedVertical ? -1 : 1})` }}
+                />
+              ) : (
+                <div className="text-center">
+                  <p className="text-xl font-bold text-slate-900 dark:text-slate-100"><LocalizedText>Upload Image</LocalizedText></p>
+                  <p className="mt-2 text-sm font-semibold text-slate-500 dark:text-slate-400"><LocalizedText>Your result will appear here</LocalizedText></p>
+                </div>
+              )}
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
   );
 }
-
